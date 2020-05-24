@@ -1,0 +1,4 @@
+n = int(input())
+for i in range(n):
+  energy = 1
+  print('Case #' + str(i+1) + ': '+ str(89875517873681764*int(input())))

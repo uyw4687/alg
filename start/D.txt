@@ -1,0 +1,18 @@
+n = int(input())
+for i in range(n):
+
+  numSchools = int(input())
+  allPlayers = []
+  for j in range(numSchools):
+    tempPlayers = list(map(int, input().split()))
+    
+    allPlayers.append(sorted(tempPlayers, reverse=True))
+    
+  allPlayers = sorted(allPlayers, reverse=True)
+  
+  print('Case #' + str(i+1) + ':')
+  for players in allPlayers:
+    print(' '.join(str(player) for player in players))
+  
+  if i != n-1:
+    input()

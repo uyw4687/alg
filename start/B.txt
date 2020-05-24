@@ -1,0 +1,28 @@
+n = int(input())
+for i in range(n):
+  print('Case #' + str(i+1) + ':')
+  
+  lines = int(input())
+  for j in range(lines):
+    satz = input()
+    
+    nextStart = 0
+    while True:
+      
+      firstOccur = satz.find('ent', nextStart)
+      if firstOccur == -1:
+        break
+
+      length = len(satz)
+      if length > firstOccur+4: # 'entin' oder 'enten'
+        followingTwoLetters = satz[firstOccur+3:firstOccur+5]
+        if followingTwoLetters == 'in' or followingTwoLetters == 'en':
+          satz = satz[:firstOccur] + 'ierende' + satz[firstOccur+5:]
+          nextStart = firstOccur+5
+          continue
+          
+      satz = satz[:firstOccur] + 'ierender' + satz[firstOccur+3:]
+      nextStart = firstOccur+3
+
+
+    print(satz)

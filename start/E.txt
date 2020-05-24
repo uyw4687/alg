@@ -1,0 +1,23 @@
+import re
+
+n = int(input())
+for i in range(n):
+
+  string = input()
+  numbers = re.findall(r'\d+', string)
+  numbers = list(map(int, numbers))
+  operations = re.findall(r'[a-z]+', string)
+
+  result = numbers[0]
+  
+  for j, operation in enumerate(operations, start=1):
+    if operation == 'plus':
+      result += numbers[j]
+    elif operation == 'minus':
+      result -= numbers[j]
+    elif operation == 'times':
+      result *= numbers[j]
+    else:
+      result **= numbers[j]
+
+  print('Case #' + str(i+1) + ': ' + str(result))
