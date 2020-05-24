@@ -1,0 +1,56 @@
+# parent is list []
+def root(parent, node):
+  
+  if parent[node] != node:
+    parent[node] = root(parent, parent[node])
+  
+  return parent[node]
+
+def union(parent, rank, rootA, rootB):
+  if rootA == rootB:
+    return
+  if rank[rootA] >= rank[rootB]:
+    parent[rootB] = rootA
+    rank[rootA] += rank[rootB]
+  else:
+    parent[rootA] = rootB
+    rank[rootB] += rank[rootA]
+
+n = int(input())
+for i in range(n):
+
+  if i != 0:
+    input()
+    
+  numPpl, numRel, numMar = map(int, input().split())
+
+  money = list(map(int, input().split()))
+
+  parent = list(range(numPpl))
+  rank = [1] * numPpl
+
+  for j in range(numRel):
+    d, e = map(int, input().split()) # raw
+    if d != e: # raw
+      union(parent, rank, root(parent, d-1), root(parent, e-1))
+  
+  for j in range(numMar):
+    f, g = map(int, input().split()) # raw
+    if f != g: # raw
+      union(parent, rank, root(parent, f-1), root(parent, g-1))
+    money[f-1] = -1
+    money[g-1] = -1
+
+  maxMoney = -1
+
+  hisRoot = root(parent, numPpl-1)
+
+  for j in range(numPpl):
+    if root(parent, j) != hisRoot:
+      if money[j] > maxMoney:
+        maxMoney = money[j]
+  
+  if maxMoney != -1:
+    print('Case #' + str(i+1) + ': ' + str(maxMoney))
+  else:
+    print('Case #' + str(i+1) + ': impossible')

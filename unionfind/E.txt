@@ -1,0 +1,144 @@
+# when rel is a linked ring
+# union by rank not used
+# path compression not used
+
+# less space more time
+
+# rel is a list
+def root(rel, node):
+  if rel[node][0] != node:
+    rel[node][0] = root(rel, rel[node][0])
+  return rel[node][0]
+
+def union(rel, rank, rootA, rootB, noInfiniteLoopYouIdiot = False):
+  if rootA == rootB:
+    return
+  if rank[rootA] >= rank[rootB]:
+    rel[rootB][0] = rootA
+    rank[rootA] += rank[rootB]
+    rel[rootA][1] += rel[rootB][1]
+    rel[rootB][1] = []
+  else:
+    rel[rootA][0] = rootB
+    rank[rootB] += rank[rootA]
+    rel[rootB][1] += rel[rootA][1]
+    rel[rootA][1] = []
+
+  if noInfiniteLoopYouIdiot:
+    if len(rel[rootB][1]) == 0:
+      del foe[rootB]
+    else:
+      del foe[rootA]
+    return
+  else: 
+
+    aIn = rootA in foe
+    bIn = rootB in foe
+      
+    # elif foe[rootA] != -1 and foe[rootB] != -1:
+    if aIn and bIn:
+      union(rel, rank, root(rel, foe[rootA]), root(rel, foe[rootB]), True)
+      # del info ###
+    # elif foe[rootA] == -1 and foe[rootB] == -1:
+    elif not aIn and not bIn:
+      pass
+    # can imporve ###
+    else:
+
+      if len(rel[rootB][1]) == 0:
+        # node = rel[rootA][1]
+        node = rootA
+      else:
+        # node = rel[rootB][1]
+        node = rootB
+
+      # if foe[rootA] != -1:
+      if aIn:
+        foeNode = foe[rootA]
+        del foe[rootA]
+      else:
+        foeNode = foe[rootB]
+        del foe[rootB]
+
+      # for node in nodes:
+      #   foe[node] = foeNode
+      foe[node] = foeNode
+
+t = int(input())
+for i in range(t):
+
+  if i != 0:
+    input()
+
+  n, m = map(int, input().split())
+
+  rel = []
+  for j in range(n):
+    rel.append([j, [j]])
+
+  rank = [1]*n
+
+  # foe = [-1]*n
+  foe = {}
+
+  # print('rel')
+  # print(rel)
+  # print('rank')
+  # print(rank)
+  # print('foe')
+  # print(foe)
+  # print()
+
+  for j in range(m):
+    grain = input().split()
+    x, y = map(int, grain[1:])
+    
+    x -= 1
+    y -= 1
+
+    rootX = root(rel, x)
+    rootY = root(rel, y)
+
+    if grain[0] == 'F':
+      # union(rel, rank, root(rel, x), root(rel, y))
+      union(rel, rank, rootX, rootY)
+
+      #union function does the foe update
+    else:
+      # if foe[x] == -1:
+      if rootX not in foe:
+        # for node in rel[root(rel, x)][1]:
+        #   foe[node] = y
+        foe[rootX] = y
+      # if foe[y] == -1:
+      if rootY not in foe:
+        # for node in rel[root(rel, y)][1]:
+          # foe[node] = x
+        foe[rootY] = x
+
+      xFoe = foe[rootX]
+      yFoe = foe[rootY]
+
+      # union(rel, rank, root(rel, foe[x]), root(rel, y))
+      union(rel, rank, root(rel, xFoe), rootY)
+      # union(rel, rank, root(rel, x), root(rel, foe[y]))
+      union(rel, rank, rootX, root(rel, yFoe))
+      
+    # print('rel')
+    # print(rel)
+    # print('rank')
+    # print(rank)
+    # print('foe')
+    # print(foe)
+    # print()
+
+  # print('root(rel, 0) : ' + str(root(rel, 0)))
+  # print('rel[root(rel, 0)][1]')
+  # print(rel[root(rel, 0)][1])
+  # print('n : ' + str(n))
+  # print()
+
+  if len(rel[root(rel, 0)][1]) > n/2:
+    print('Case #' + str(i+1) + ': yes')
+  else:
+    print('Case #' + str(i+1) + ': no')

@@ -1,0 +1,89 @@
+import math
+
+n = int(input())
+for i in range(n):
+  
+  d, p, u, v = map(int, input().split())
+
+  x = d/(p-1)
+
+  if p!=2 and u!=v:
+
+    left = u
+    right = d-v
+        
+    # lenCanyon = v-u
+    upperBound = d/(p-1)
+
+    numLeftPosts = math.floor(left/upperBound) # except the leftmost
+
+    if v%upperBound == 0:
+      numInside = int(v/upperBound-1-numLeftPosts)
+    else:
+      numInside = int(math.floor(v/upperBound)-numLeftPosts)
+
+    numRightPosts = p-2-(numLeftPosts+numInside)
+    
+    # print('numLeftPosts : ' + str(numLeftPosts))
+    # print('numInside : ' + str(numInside))
+    # print('numRightPosts : ' + str(numRightPosts))
+    
+    # if lenCanyon <= upperBound:
+    #   if numInside != 0:
+    #     # one inside
+    #     possA = left/(numLeftPosts+1)
+    #     possB = right/(numRightPosts+1)
+    #     x = possA if possA>=possB else possB
+
+    #     # print('possA : ' + str(possA))
+    #     # print('possB : ' + str(possB))
+    if numInside != 0:
+      #at least one
+      
+      if u==0 or v==d:
+        x = (d-(v-u))/(p-2)
+      else:
+        hop = numInside
+        curr = 0
+        maxMinDist = -1
+
+        finish = False
+
+        while True:
+          
+          if numLeftPosts+curr==0:
+            distLeft = v
+          else:
+            distLeft = left/(numLeftPosts+curr)
+          
+          if numRightPosts+(numInside-curr)==0:
+            distRight = u
+          else:
+            distRight = right/(numRightPosts+(numInside-curr))
+
+          # print('maxMinDist : ' + str(maxMinDist))
+          # print('distLeft : ' + str(distLeft))
+          # print('distRight : ' + str(distRight))
+
+          if distLeft == distRight:
+            maxMinDist = distLeft
+            break
+          elif distLeft > distRight:
+            if maxMinDist < distRight:
+              maxMinDist = distRight
+            curr += hop
+          else:
+            if maxMinDist < distLeft:
+              maxMinDist = distLeft
+            curr -= hop
+
+          if hop==0:
+            break
+          elif hop!=1:
+            hop = math.ceil(hop/2)
+          else: #hop == 1
+            hop = 0
+
+        x = maxMinDist
+
+  print('Case #' + str(i+1) + ': ' + str(x))

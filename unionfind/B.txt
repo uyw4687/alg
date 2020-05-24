@@ -1,0 +1,37 @@
+n = int(input())
+for i in range(n):
+  
+  if i != 0:
+    input()
+    
+  _, cost = map(int, input().split())
+
+  prices = list(map(int, input().split()))
+  
+  low = 0.0
+  high = 1.0
+  prob = 0.5
+  while True:
+
+    smaller = False
+    total = 0
+    for j, price in enumerate(prices, start=1):
+      total += price * prob**j
+      if total > cost:
+        smaller = True
+        break
+    if total == cost:
+      break
+    if smaller:
+      high = prob
+      prob = prob-(prob-low)/2
+      if high-prob <= 0.1**6:
+        break
+    
+    else: # bigger
+      low = prob
+      prob = prob+(high-prob)/2
+      if prob-low <= 0.1**6:
+        break
+    
+  print('Case #' + str(i+1) + ': ' + str(prob))
