@@ -1,0 +1,84 @@
+from heapq import heappush, heappop
+import math
+
+#prev to replace visited
+def DFS(node, path, prev, branches):
+  
+  maxDepth = 0
+  for way in path[node]:
+    if way == prev:
+      continue
+    
+    depth = DFS(way, path, node, branches)
+    
+    heappush(branches[node], (-depth, way))
+
+    if depth > maxDepth:
+      maxDepth = depth
+
+  return maxDepth+1
+
+t = int(input())
+for i in range(t):
+
+  if i!=0:
+    input()
+
+  n = int(input())
+
+  path = [[] for j in range(n)]
+  rank = [0]*n
+
+  for j in range(n-1):
+    x, y = map(int, input().split())
+    path[x].append(y)
+    path[y].append(x)
+    rank[x] += 1
+    rank[y] += 1
+
+  #O(n)
+  firstLeaf = 0
+  while True:
+    if rank[firstLeaf] == 1:
+      break
+
+    else:
+      firstLeaf+=1
+
+  #space O(e)
+  branches = [[] for j in range(n)]
+
+  #O(v+e)
+  DFS(firstLeaf, path, -1, branches)
+
+  depth = -branches[firstLeaf][0][0]
+  
+  end = math.floor(depth/2)
+
+  curr = firstLeaf
+
+  maxRestraint = -1
+
+  for j in range(end):
+    # j is 'going to the end' depth
+
+    longestDepthWay = heappop(branches[curr])
+
+    # rank = [] and use len <- garbage collection
+    
+    if rank[curr] >= 3:
+      nextLongestDepthWay = heappop(branches[curr])
+      if -nextLongestDepthWay[0] > j:
+        if maxRestraint < -nextLongestDepthWay[0]:
+          maxRestraint = -nextLongestDepthWay[0]
+    if maxRestraint != -1:
+      if maxRestraint+2 == depth-j:
+        curr = longestDepthWay[1]
+        break
+      if maxRestraint+1 >= depth-j:
+        center = curr
+        break
+      maxRestraint += 1
+    
+    curr = longestDepthWay[1]
+  print("Case #"+str(i+1)+": "+str(curr))

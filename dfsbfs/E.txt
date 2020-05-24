@@ -1,0 +1,119 @@
+from heapq import heappop, heappush
+
+def DFS(halls, node, water, visited, n, failed, controls):
+  
+  # print("water : " + str(water))
+  # print("node : " + str(node))
+
+  visited[node] = True
+  visited[n] += 1
+  
+  # print("visited[n] : " + str(visited[n]))
+
+  if visited[n] == n:
+    return
+
+  if controls[node] != 10**5:
+    if controls[n] > controls[node]:
+      controls[n] = controls[node]
+
+  numEdges = len(halls[node])
+
+  for i in range(numEdges):
+
+    elem = heappop(halls[node])
+
+    if not visited[elem[1]]:
+      if elem[0]*(-1) >= water:
+
+        newNode = elem[1]
+
+        if not visited[newNode]:
+          DFS(halls, newNode, water, visited, n, failed, controls)
+      else:
+        heappush(failed, elem)
+    
+
+
+t = int(input()) # testcases
+for i in range(t):
+  
+  if i != 0:
+    input()
+
+  n, m, k, l = map(int, input().split())
+
+  halls = [[] for j in range(n)]
+
+  #aj can be same as bj
+  for j in range(m):
+    aj, bj, lj = map(int, input().split())
+    aj -= 1
+    bj -= 1
+
+    heappush(halls[aj], (-lj, bj))
+    heappush(halls[bj], (-lj, aj))
+    
+  #can make it a map
+  controls = [10**5]*n
+
+  #last is for reachable
+  controls.append(10**5)
+
+  for j in range(k):
+    aj, dj = map(int, input().split())
+    aj -= 1
+
+    controls[aj] = dj
+
+  visited = [False]*n
+  visited.append(0) # at the end : cnt
+
+  failed = []
+
+  possible = - 1
+
+  pending = []
+  pending.append(0)
+
+  while True:
+  
+    numPending = len(pending)
+    
+    for j in range(numPending):
+      node = pending.pop(0)
+      if not visited[node]:
+        DFS(halls, node, l, visited, n, failed, controls)
+  
+    if visited[n] == n:
+      possible = l
+      break
+    else: # not done
+    
+      # print("failed : "+ str(failed))
+      # print("len(failed) : "+ str(len(failed)))
+      # print("controls[n] : "+ str(controls[n]))
+      
+      # not reachable with(out) controls
+      if len(failed) == 0 or controls[n] == 10**5:
+        break
+      else:
+        # print("failed[0][0]*(-1) : "+ str(failed[0][0]*(-1)))
+        # print("controls[n] : "+ str(controls[n]))
+        if failed[0][0]*(-1) < controls[n]:
+          break
+        else:
+          l = failed[0][0]*(-1)
+          
+          lenFailed = len(failed)
+          
+          for j in range(lenFailed):
+            if failed[0][0]*(-1) >= l:
+              pending.append(heappop(failed)[1])
+            else:
+              break
+
+  if possible != -1:
+    print("Case #"+str(i+1)+": " + str(possible))
+  else:
+    print("Case #"+str(i+1)+": " + "impossible")

@@ -1,0 +1,73 @@
+# import sys
+# import io
+
+# sys.stdin = io.StringIO("10\n2\n0 1\n1 0\n\n3\n0 1 3\n1 0 2\n3 2 0\n\n4\n0 6 7 4\n6 0 5 4\n7 5 0 7\n4 4 7 0\n\n3\n0 3 4\n3 0 6\n4 6 0\n\n4\n0 5 4 3\n5 0 7 6\n4 7 0 5\n3 6 5 0\n\n3\n0 3 4\n3 0 5\n4 5 0\n\n4\n0 4 3 5\n4 0 5 7\n3 5 0 4\n5 7 4 0\n\n5\n0 6 7 7 3\n6 0 5 4 7\n7 5 0 7 4\n7 4 7 0 7\n3 7 4 7 0\n\n3\n0 3 3\n3 0 5\n3 5 0\n\n4\n0 4 5 6\n4 0 4 7\n5 4 0 5\n6 7 5 0\n\n")
+
+def root(rel, node):
+  
+  if rel[node] != node:
+    rel[node] = root(rel, rel[node])
+  
+  return rel[node]
+
+# should give roots here!!!
+def union(rel, rank, rootA, rootB):
+  if rootA == rootB:
+    return
+  if rank[rootA] >= rank[rootB]:
+    rel[rootB] = rootA
+    rank[rootA] += rank[rootB]
+  else:
+    rel[rootA] = rootB
+    rank[rootB] += rank[rootA]
+
+
+testCases = int(input())
+for i in range(testCases):
+
+  if i != 0:
+    input()
+
+  numPeople = int(input())
+
+  distancesForKruskal = []
+
+  for j in range(numPeople):
+    distance = list(map(int, input().split()))
+    for k, elem in enumerate(distance):
+      if k > j:
+        distancesForKruskal.append([elem, [j, k]])
+
+  distancesForKruskal = sorted(distancesForKruskal)
+
+  # print("distancesForKruskal : " + str(distancesForKruskal))
+
+  resultingGreetings = []
+
+  rel = list(range(numPeople))
+  rank = [1]*numPeople
+
+  for elem in distancesForKruskal:
+
+    if len(resultingGreetings) == numPeople-1:
+      break
+
+    if root(rel, elem[1][0]) != root(rel, elem[1][1]):
+
+      # already done in making the list
+      # if elem[1][0] < elem[1][1]:
+      greeting = [elem[1][0]+1, elem[1][1]+1]
+      # else:
+      #   greeting = [elem[1][1]+1, elem[1][0]+1]
+      resultingGreetings.append(greeting)
+      
+      union(rel, rank, root(rel, elem[1][0]), root(rel,elem[1][1]))
+
+    # print("rel : " + str(rel))
+
+  resultingGreetings = sorted(resultingGreetings)
+
+  print('Case #' + str(i+1) + ':')
+
+  for greeting in resultingGreetings:
+    print(' '.join(map(str, greeting)))

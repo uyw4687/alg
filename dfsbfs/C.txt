@@ -1,0 +1,84 @@
+def dfs(roads, stack, visited, instack, i, n):
+
+  visited[i] = True
+  instack[i] = True
+
+  cycle = False
+
+  for to in roads[i]:
+
+    if instack[to]:
+      cycle = True
+      return cycle
+
+    if not visited[to]:
+      cycle = dfs(roads, stack, visited, instack, to, n)
+      if cycle:
+        return cycle
+
+  instack[i] = False
+  stack.append(i)
+  
+  return cycle
+
+def top(roads, stack, n):
+  
+  visited = [False]*n
+  instack = [False]*n
+
+  cycle = False
+
+  for i in range(n):
+    if not visited[i]:
+      cycle = dfs(roads, stack, visited, instack, i, n)
+      if cycle:
+        return cycle
+
+  return cycle
+
+t = int(input())
+
+for i in range(t):
+
+  if i!=0:
+    input()
+
+  n, m, l = map(int, input().split())
+  
+  roads = [[] for j in range(n)]
+
+  for j in range(m):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    roads[a].append(b)
+
+  cycle = False
+  stack = []
+  cycle = top(roads, stack, n)
+
+  if cycle:
+    for j in range(l):
+      input()
+    print("Case #"+str(i+1)+": no")
+    continue
+  
+  print("Case #"+str(i+1)+": yes")
+  
+  order = [-1]*n
+  
+  cnt = 0
+
+  for j in range(n):
+    order[stack.pop()] = cnt
+    cnt += 1
+  
+  for j in range(l):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    if order[a] < order[b]:
+      print(a+1, b+1)
+
+    else:
+      print(b+1, a+1)

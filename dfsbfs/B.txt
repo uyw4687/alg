@@ -1,0 +1,202 @@
+# # Think of all possible cases
+# # remember that given test cases are too simple to pass an incomplete program 
+
+# # if you don't know why run error appears after this then remove some restrictions like duplication restrictions
+
+# import random
+
+# total = 0
+
+# while True:
+#   print("START*******************")
+#   # t = int(random.random() * 100)+1
+#   t = int(random.random() * 50)+1
+
+#   total += t
+#   print('total : ' + str(total))
+  
+#   print(t)
+
+#   string = str(t) + '\n'
+
+#   for i in range(t):
+
+#     N = int(random.random() * 500)+1
+#     K = int(random.random() * (N+1))
+#     R = int(random.random() * (N-K+1))
+#     if N*N-N <= 200000:
+#       D = int(random.random() * (N*N-N+1))
+#     else:
+#       D = int(random.random() * (200000+1))
+
+#     # N = int(random.random() * 100)+1
+#     # K = int(random.random() * (N+1))
+#     # R = int(random.random() * (N-K+1))
+#     # D = int(random.random() * (N*N-N+1))
+
+#     string += str(N) + ' ' + str(K) + ' ' + str(R) + ' ' + str(D) + '\n'
+#     print(str(i+1) + ': ' + str(N) + ' ' + str(K) + ' ' + str(R) + ' ' + str(D))
+
+#     taken = [False]*N
+
+#     for j in range(K):
+
+#       keep = 0
+#       # while True:
+#       keep = int(random.random() * N) + 1
+#         # if not taken[keep-1]:
+#         #   break
+
+#       # taken[keep-1] = True
+#       string += str(keep)
+      
+#       if j != K-1:
+#         string += ' '
+#       else:
+#         string += '\n'
+    
+#     # if K != 0:
+#     #   print(string)
+#     # string = ''
+      
+#     for j in range(R):
+
+#       erase = 0
+#       while True:
+#         erase = int(random.random() * N) + 1
+#         if not taken[erase-1]:
+#           break
+      
+#       # taken[erase-1] = True
+#       string += str(erase)
+      
+#       if j != R-1:
+#         string += ' '
+#       else:
+#         string += '\n'
+
+#     # if R != 0:
+#     #   print(string)
+#     # string = ''
+
+#     rel = [[False]*N for j in range(N)]
+
+#     for j in range(D):
+#       while True:
+#         one = int(random.random() * N) + 1
+#         another = int(random.random() * N) + 1
+
+#         if not rel[one-1][another-1]:
+#           break
+      
+#       # rel[one-1][another-1] = True
+#       string += str(one) + ' ' + str(another) + '\n'
+#       # print(str(one) + ' ' + str(another))
+
+#     if i != t-1:
+#       string += '\n'
+      
+#     # print()
+#   # print(string)
+
+# import sys
+# import io
+
+#   sys.stdin = io.StringIO(string)
+# sys.stdin = io.StringIO("2\n10 1 1 9\n1\n2\n1 3\n3 4\n5 2\n1 6\n7 5\n4 8\n9 8\n9 7\n1 10\n\n10 1 1 9\n1\n2\n1 3\n3 4\n5 2\n1 6\n7 5\n4 8\n8 9\n9 7\n1 10\n")
+
+#invariants
+# possible or not
+# from collections import deque
+
+n = int(input())
+for i in range(n):
+
+  if i != 0:
+    input()
+
+  numPrograms, numKeeps, numErases, numRelations = map(int, input().split())
+
+  keeps = []
+  
+  # if numKeeps != 0:
+  keeps = list(map(int, input().split()))
+
+  # print('numKeeps : ' + str(numKeeps))
+  # print('keeps : ' + str(keeps))
+
+  # for j in range(numKeeps):
+  #   keeps[j] -= 1
+    
+  erases = []
+
+  # if numErases != 0:
+  erases = list(map(int, input().split()))
+
+  # for j in range(numErases):
+  #   erases[j] -= 1
+  
+  # print('keeps : '+ str(keeps))
+  # print('erases : '+ str(erases))
+
+  # rel = [[False]*numPrograms for j in range(numPrograms)]
+  # print('rel : '+ str(rel))
+  rel = [[] for j in range(numPrograms)]
+
+  for j in range(numRelations):
+    one, another = map(int, input().split())
+    one -= 1
+    another -= 1
+
+    rel[another].append(one)
+    # rel[one][another] = True
+  
+    # print('j : '+ str(j))
+    # print('one : '+ str(one))
+    # print('another : '+ str(another))
+    # print('rel : '+ str(rel))
+  
+  # print('rel : '+ str(rel))
+  conflicts = [False]*numPrograms
+
+  # point1
+  # queue = deque()
+  queue = []
+
+  for elem in erases:
+    conflicts[elem-1] = True
+    queue.append(elem-1)
+
+  # print('queue : '+ str(queue))
+  # print('conflicts : '+ str(conflicts))
+
+  while len(queue)!=0:
+    # currElem = queue.popleft()
+    currElem = queue[0]
+    queue = queue[1:]
+    # currElem = queue.pop()
+    for program in rel[currElem]:
+    # for program in range(numPrograms):
+    #   if program != currElem:
+        # if rel[program][currElem]:
+      if not conflicts[program]:
+        conflicts[program] = True
+        queue.append(program)
+        # print("HERE")
+
+  #   print('queue : '+ str(queue))
+  #   print('conflicts : '+ str(conflicts))
+
+  # print('conflicts : '+ str(conflicts))
+
+  noConflict = True
+
+  for keep in keeps:
+    if conflicts[keep-1]:
+      noConflict = False
+      break
+
+  if noConflict:
+    print('Case #' + str(i+1) + ': ok')
+  else:
+    print('Case #' + str(i+1) + ': conflict')
