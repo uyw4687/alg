@@ -1,0 +1,57 @@
+import heapq
+
+t = int(input())
+for i in range(t):
+  
+  if i!=0:
+    input()
+
+  n, m = map(int, input().split())
+  #n : node, m : edge
+  #1~n
+  #1->n
+
+  edges = [{} for j in range(n)]
+  for j in range(m):
+    v, w, c = map(int, input().split())
+    v-=1
+    w-=1
+    
+    #or heap
+    if w not in edges[v]:
+      edges[v][w] = c #to, cost
+    else:
+      if edges[v][w] > c:
+        edges[v][w] = c
+
+    if v not in edges[w]:
+      edges[w][v] = c #to, cost
+    else:
+      if edges[w][v] > c:
+        edges[w][v] = c
+
+  #from node 0
+  costs = [1001*1001]*n  
+  costs[0] = 0
+
+  visited = [False]*n
+
+  heap = [(0, 0)]
+
+  while len(heap) != 0:
+    
+    costCurr, curr = heapq.heappop(heap)
+    if visited[curr]:
+      continue
+
+    visited[curr] = True
+    
+    for to, cost in edges[curr].items():
+      if not visited[to]:
+        if costs[to] > cost+costCurr:
+          costs[to] = cost+costCurr
+
+          heapq.heappush(heap, (costs[to], to))
+
+
+  print("Case #"+str(i+1)+":", costs[n-1])

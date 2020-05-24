@@ -1,0 +1,113 @@
+from heapq import heappush, heappop
+
+t = int(input())
+
+for i in range(t):
+
+  if i!=0:
+    input()
+
+  #in
+  n, m, s, a, b = map(int, input().split())
+
+  a-=1
+  b-=1
+
+  #in
+  roads = [{} for j in range(n)]
+
+  for j in range(m):
+    x, y, z = map(int, input().split())
+    
+    x-=1
+    y-=1
+    
+    if y in roads[x]:
+      if z > roads[x][y]:
+        continue
+
+    #invariant : same values are stored
+    roads[x][y] = z
+    roads[y][x] = z
+
+  #in
+  markts = {}
+    
+  for j in range(s):
+    c, w = map(int, input().split())
+    c -= 1
+
+    if c in markts:
+      if w > markts[c]:
+        continue
+    
+    markts[c] = w
+  
+  #Dijkstra
+  costsLea = [10**(2+4+1)]*n
+  costsLea[a] = 0
+  heap = [(0, a)]
+  done = [False]*n
+
+  #making stop when found make it faster
+  while len(heap) != 0:
+    cost, curr = heappop(heap)
+    done[curr] = True
+
+    #can make it more efficient by deleting edges? - not fixing this save time and use it here
+    for to, newcost in roads[curr].items():
+      if done[to]:
+        continue
+      if costsLea[to] > newcost+cost:
+        costsLea[to] = newcost+cost
+        
+        heappush(heap, (costsLea[to], to))
+
+  #take cares the opposite also
+  if costsLea[b] == 10**(2+4+1):
+    print("Case #"+str(i+1)+":", "impossible")
+    continue
+
+  #for Peter
+  costsPeter = [10**(2+4+1)]*n
+  costsPeter[b] = 0
+  heap = [(0, b)]
+  done = [False]*n
+
+  #making stop when found make it faster
+  while len(heap) != 0:
+    cost, curr = heappop(heap)
+    done[curr] = True
+
+    #can make it more efficient by deleting edges? - not fixing this save time and use it here
+    for to, newcost in roads[curr].items():
+      if done[to]:
+        continue
+      if costsPeter[to] > newcost+cost:
+        costsPeter[to] = newcost+cost
+        
+        heappush(heap, (costsPeter[to], to))
+
+  minCost = (10**(4+2+1) + 10**(3+1))*2
+  for to, time in markts.items():
+    if costsLea[to] == 10**(4+2+1):
+      continue
+    if costsPeter[to] == 10**(4+2+1):
+      continue
+    added = costsLea[to]+costsPeter[to]+time
+    if minCost > added:
+      minCost = added
+
+  if minCost == (10**(4+2+1) + 10**(3+1))*2:
+    print("Case #"+str(i+1)+":", "impossible")
+  else:
+    hour = str(minCost//60)
+    minute = minCost%60
+    if minute == 0:
+      minute = "00"
+    elif minute < 10:
+      minute = "0"+str(minute)
+    else:
+      minute = str(minute)
+
+    print("Case #"+str(i+1)+":", hour+":"+minute)

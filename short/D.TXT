@@ -1,0 +1,45 @@
+from collections import deque
+
+t = int(input())
+for i in range(t):
+
+  if i!=0:
+    input()
+
+  n = int(input())
+
+  costs = [-1]*n
+  inedgecnt = [0]*n
+
+  roads = [[] for j in range(n)]
+
+  #already topologically sorted 
+  for j in range(n):
+    costs[j], _, *js = map(int, input().split())
+
+    for elem in js:
+      elem-=1
+      inedgecnt[elem]+=1
+      roads[j].append(elem)
+
+
+  #store maxtimes before it stores the right shit
+  #index 0 also used <- for n == 1
+  endcosts = [-1]*n
+  endcosts[0] = costs[0]
+
+  queue = deque()
+  queue.append(0)
+
+  while len(queue)!=0:
+    curr = queue.popleft()
+    for to in roads[curr]:
+      inedgecnt[to]-=1
+      if endcosts[to] < endcosts[curr]:
+        endcosts[to] = endcosts[curr] 
+      if inedgecnt[to] == 0:
+        endcosts[to]+=costs[to]
+        queue.append(to)
+      # print(inedgecnt, roads, endcosts, costs)
+    
+  print("Case #"+str(i+1)+":", endcosts[n-1])

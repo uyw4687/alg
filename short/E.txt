@@ -1,0 +1,127 @@
+from heapq import heappop, heappush#, heapify
+
+t = int(input())
+
+for i in range(t):
+
+  if i!=0:
+    input()
+
+  #input
+  N, M, K = map(int, input().split())
+  
+  spath = list(map(int, input().split()))
+
+  roads = [{} for j in range(N)]
+  for j in range(M):
+    a, b, c = map(int, input().split())
+
+    if a==b:
+      continue
+
+    a-=1
+    b-=1
+
+    #this also take cares the other case
+    if b in roads[a]:
+      if c > roads[a][b][0]:
+        continue
+      elif c == roads[a][b][0]:
+        roads[a][b][1]+=1
+        roads[b][a][1]+=1
+        continue
+
+    #update or new
+    roads[a][b] = [c, 1]
+    roads[b][a] = [c, 1]
+
+
+  total = 0
+  
+  poss = "no"
+
+  prev = spath[0]-1
+  for j in range(1, K):
+    curr = spath[j]-1
+    total += roads[prev][curr][0]
+
+    if roads[prev][curr][1] > 1:
+      poss = "yes"
+      break
+    prev = curr
+
+  if poss == "yes":
+    print("Case #"+str(i+1)+":", "yes")
+    continue
+
+  #Dijkstra
+  #O(e+v) with breaking
+  #with backtracking
+
+  #index 0 not used
+  costs = [10**4*10**4]*N
+  costs[0] = 0
+  
+  backs = [0]*N
+
+  heap = [(0,0)]
+  done = [False]*N
+
+  # #used after done checking
+  # alreadyinheap = [False]*N
+  # alreadyinheap[0] = True
+
+  while len(heap) != 0:
+
+    cost, curr = heappop(heap)
+
+    if done[curr]:
+      continue
+
+    done[curr] = True
+    
+    if curr == N-1:
+      break
+
+    for to, [newcost, _] in roads[curr].items():
+
+      if done[to]:
+        continue
+
+      added = newcost+cost
+
+      #first or update
+      if costs[to] > added:
+        costs[to] = added
+        backs[to] = 1
+
+        if costs[to] > total:
+          continue
+        
+        # if not alreadyinheap[to]:
+        heappush(heap, (costs[to], to))
+          # alreadyinheap[to] = True
+        # else:
+        #   #O(n)
+        #   for j, elem in enumerate(heap):
+        #     if elem[1] == to:
+        #       heap[j], heap[-1] = heap[-1], heap[j]
+        #       heap.pop()
+        #       heapify(heap)
+        #       break
+        #   heappush(heap, (costs[to], to)) 
+            
+      elif costs[to] == added:
+        backs[to]+=1
+        
+  #O(v)
+  for j in reversed(range(0, K-1)):
+    
+    curr = spath[K-1-j]-1
+    prev = spath[K-1-j-1]-1
+    
+    if backs[curr] > 1:
+      poss = "yes"
+      break
+
+  print("Case #"+str(i+1)+":", poss)
