@@ -1,0 +1,115 @@
+# delete debugging part(s)
+from collections import deque
+
+def BFS(ways, n):
+  queue = deque()
+
+  # node, mincap
+  queue.append((0, 1000*2))
+
+  considered = [False]*n
+  considered[0] = True
+
+  # since almost all will be visited
+
+  # list is better than map
+  pred = [-1]*n
+
+  # after finding min cap then can apply flow
+
+  # shortest path
+  while len(queue)!=0:
+
+    curr, mincap = queue.popleft()
+
+    for to, [c, w] in ways[curr].items():
+      
+      # find shortest
+      if considered[to]:
+        continue
+
+      # if c==w it's considered blank edge
+      if c==w:
+        continue
+      
+      cap = w-c
+
+      # after finding min cap, can apply flow
+      if mincap > cap:
+        mincap = cap
+
+      pred[to] = curr
+      if to == n-1:
+        return True, pred, mincap
+
+      queue.append((to, mincap))
+      considered[to] = True
+
+  return False, None, 0
+  
+
+def update(ways, way, flow, n):
+
+  curr = way[n-1]
+  to = n-1
+
+  while True:
+    ways[to][curr][0] -= flow
+    ways[curr][to][0] += flow
+
+    # # for debugging!
+    # if ways[curr][to][0] > ways[curr][to][1]:
+    #   print("err")
+    #   return
+
+    if curr == 0:
+      return
+
+    to = curr
+    curr = way[curr] 
+
+cases = int(input())
+for i in range(cases):
+
+  if i!=0:
+    input()
+
+  n, edges = map(int, input().split())
+
+  #n >= 2
+  ways = [{} for j in range(n)]
+  
+  # edges >= 1
+  # w >= 1
+  for j in range(edges):
+    a, b, w = map(int, input().split())
+
+    # a>=1
+    # b>=1
+    
+    a -= 1
+    b -= 1
+    
+    # reciprocal
+    if b in ways[a]:
+      ways[a][b][1] += w
+      ways[b][a][1] += w
+    else:
+      ways[a][b] = [0, w]
+      ways[b][a] = [0, w]
+
+  maxf = 0
+
+  while True:
+    poss, way, flow = BFS(ways, n)
+    if not poss:
+      break
+      
+    maxf += flow
+
+    update(ways, way, flow, n)
+    
+  if maxf == 0:
+    print("Case #"+str(i+1)+":", "impossible")
+  else:
+    print("Case #"+str(i+1)+":", maxf)

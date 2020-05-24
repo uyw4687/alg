@@ -1,0 +1,140 @@
+def findway(ways, way, curr, visited, end):
+
+  visited[curr] = True
+  way.append(curr)
+
+  for to, [flow, cap] in ways[curr].items():
+    if flow == cap:
+      continue
+    if visited[to]:
+      continue
+
+    # found way
+    if to == end:
+      way.append(end)
+      return True
+
+    found = findway(ways, way, to, visited, end)
+    if found:
+      return True
+
+  way.pop()  
+  return False
+
+def care(ways, way):
+  # without first and last
+  
+  # l >= 4
+  l = len(way)
+  
+  # l-2, l-1 is first ones
+  # l-2 >= 2
+
+  sindex = l-2
+
+  # rev not needed
+  start = way[sindex]
+  to = way[sindex+1]
+  ways[start][to][0] += 1
+
+  sindex -= 1
+
+  while sindex >= 1:
+
+    start = way[sindex]
+    to = way[sindex+1]
+    ways[start][to][0] += 1
+    ways[to][start][0] -= 1
+    
+    sindex -= 1
+
+  # rev not needed
+  start = way[sindex]
+  to = way[sindex+1]
+  ways[start][to][0] += 1
+  
+t = int(input())
+
+for i in range(t):
+
+  if i!=0:
+    input()
+
+  # n>=1
+  # m>=1
+  # b>=1
+
+  n, m, b = map(int, input().split())
+
+  # m+b+2
+
+  # cuz needs to check if it's already there - only one pair needed
+  ways = [{} for j in range(1+m+b+1)]
+
+  takenmeal = [False]*m
+  takenbev = [False]*b
+
+  total = 0
+
+  # E < 1 + n + 
+  for j in range(n):
+    
+    # index
+    # 0 : start
+    # 1~m : meals
+    # m+1~m+b : beverages
+    # m+b+1 : end
+
+    # bev 1 is not b but m+1
+
+    meal, bev = map(int, input().split())
+
+    bev += m
+
+    if not takenmeal[meal-1] and not takenbev[bev-m-1]:
+      # flow, cap
+      ways[meal][bev] = [1, 1]
+      ways[bev][meal] = [-1, 0]
+
+      takenmeal[meal-1] = True
+      takenbev[bev-m-1] = True
+
+      total += 1
+
+      continue
+
+    # in case done in upper parts
+    if bev not in ways[meal]:
+      ways[meal][bev] = [0, 1]
+      ways[bev][meal] = [0, 0]
+
+  # j : meal
+  for j in range(1, m+1):
+    # reverse not needed
+    ways[0][j] = [0 if not takenmeal[j-1] else 1, 1]
+
+  # j : bev
+  for j in range(m+1, m+b+1):
+    # reverse not needed
+    ways[j][m+b+1] = [0 if not takenbev[j-(m+1)] else 1, 1]
+
+  while True:
+    
+    # possible infinite loop with hourglass form 
+    visited = [False]*(1+m+b+1)
+    
+    way = []
+
+    # DFS with break to find ways
+    # BFS seems not efficient
+    # Ford
+    poss = findway(ways, way, 0, visited, m+b+1)
+    if not poss:
+      break
+
+    care(ways, way)
+
+    total +=1
+  
+  print("Case #"+str(i+1)+":", total)
+  

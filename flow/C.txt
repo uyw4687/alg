@@ -1,0 +1,92 @@
+def findway(ways, way, curr, end):#, roadindices):
+
+  if ways[curr].get(end) == 1:
+    way[end] = curr
+    return True
+
+  for to, flow in ways[curr].items():
+    # flow = ways[curr][to]
+
+    if flow==0 or way[to]!=-1:
+      continue
+
+    way[to] = curr
+
+    if to == end:
+      return True
+
+    if findway(ways, way, to, end):#, roadindices):
+      return True
+
+  return False
+
+def care(road, way, maxindex):
+
+  start = to = way[maxindex]
+
+  while start != 0:
+
+    start = way[to]
+  
+    road[start][to] -= 1
+    road[to][start] += 1
+
+    to = start
+
+t = int(input())
+for i in range(t):
+
+  if i!=0:
+    input()
+
+  n, m = map(int, input().split())
+
+  numnodes = 2*n-2
+
+  road = [{} for j in range(numnodes)]
+  # roadindices = [[] for j in range(numnodes)]
+
+  for j in range(m):
+    a, b = map(int, input().split())
+
+    ean = 2*a-2 if a != n else 2*n-3
+    sbn = 2*b-3 if b != 1 else 0
+    ebn = 2*b-2 if b != n else 2*n-3
+    san = 2*a-3 if a != 1 else 0
+
+    road[ean][sbn] = 1
+    road[sbn][ean] = 0
+
+    road[ebn][san] = 1
+    road[san][ebn] = 0
+
+    # roadindices[ean].append(sbn)
+    # roadindices[sbn].append(ean)
+    # roadindices[ebn].append(san)
+    # roadindices[san].append(ebn)
+
+  for j in range(2, n):
+    # 2 ~ n-1
+    a = 2*j-3
+    b = a+1
+    road[a][b] = 1
+    road[b][a] = 0
+
+    # roadindices[a].append(b)
+    # roadindices[b].append(a)
+
+  total = 0
+
+  numnodes = 2*n-2
+  maxindex = numnodes-1
+
+  while True:
+    way = [-1]*numnodes
+    # BFS seems not efficient
+    if not findway(road, way, 0, maxindex):#, roadindices):
+      break
+    
+    care(road, way, maxindex)
+    total +=1
+  
+  print("Case #"+str(i+1)+":", total)

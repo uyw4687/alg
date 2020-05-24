@@ -1,0 +1,101 @@
+def dfs(ways, way, end, curr):
+  for to, cap in ways[curr].items():
+    if cap==0 or way[to]!=-1:
+      continue
+    way[to] = curr
+    if to == end:
+      return True
+    if dfs(ways, way, end, to):
+      return True
+  return False
+
+def care(road, way, sink):
+  start = to = sink
+  # print("CARE")
+  while start != 0:
+    start = way[to]
+    # print(start, to)
+    road[start][to] -= 1
+    road[to][start] += 1
+    to = start
+  
+def makenode(road, r, c, d, n):
+  squ = n*n
+  to = squ*2*d+squ+r*n+c+1
+  plus = squ*2*d+1
+  
+  if r!=0:
+    indf = (r-1)*n+c+plus
+    road[indf][to] = 1
+    road[to][indf] = 0
+
+  sc = 0 if c==0 else c-1
+  ec = n-1 if c==n-1 else c+1
+
+  for cc in range(sc, ec+1):
+    indf = r*n+cc+plus
+    road[indf][to] = 1
+    road[to][indf] = 0
+
+  if r!=n-1:
+    indf = (r+1)*n+c+plus
+    road[indf][to] = 1
+    road[to][indf] = 0
+
+#input
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  #input
+  n,kk,d = map(int,input().split())
+  squ = n*n
+  numnodes = 1+squ+(squ*2)*(d-1)+squ+1
+  road = [{} for j in range(numnodes)]
+  heit = []
+
+  if kk==0:
+    for j in range(n+kk+d):
+      input()
+    print("Case #"+str(i+1)+":", 0)
+  
+  #duplicate
+  for j in range(d-1):
+    start = squ*2*j+squ+1
+    for k in range(squ):
+      road[start+k][start+squ+k] = 1
+      road[start+squ+k][start+k] = 0
+  
+  #sink
+  sink = numnodes-1
+  start = sink-squ
+  for j in range(squ):
+    road[start+j][sink] = 1
+    road[sink][start+j] = 0
+
+  #input
+  for j in range(n):
+    heit.append(list(map(int,input().split())))
+
+  #input
+  for j in range(kk):
+    r, c = map(int, input().split()) #0-index #distinct
+    road[0][1+r*n+c] = 1
+    road[1+r*n+c][0] = 0 #unused
+
+  #input
+  for j in range(d):
+    lvl = int(input())
+    for r in range(n):
+      for c in range(n):  
+        if heit[r][c] > lvl:
+          makenode(road, r, c, j, n)
+
+  cnt=0
+  while True:
+    way = [-1]*numnodes
+    if not dfs(road, way, sink, 0):
+      break
+    cnt+=1
+    care(road, way, sink)
+  print("Case #"+str(i+1)+":", cnt)

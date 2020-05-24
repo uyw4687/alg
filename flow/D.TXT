@@ -1,0 +1,232 @@
+# check if datas are well processed using sample inputs
+# check if invariants are well preserved
+
+# check with randomized tests
+
+from copy import deepcopy
+
+def find(roads, start, cnt, goal, way, visited, n, maxcnt):
+  
+  way.append(start)
+  visited[start-1] = True
+
+  # print("Find")
+  # print(start)
+  # print(goal)
+
+  if start == 0:
+    for to, f in roads[start].items():
+      if f == 1:
+        continue
+      
+      # not needed
+      # if visited[to-1]:
+      #   continue
+
+      pos = find(roads, to, cnt, goal, way, visited, n, maxcnt)
+      if pos:
+        return True
+
+  # if came here then fine cuz source could come here
+  elif start > n:
+
+    listroad = list(roads[start].items())
+    
+    first = listroad[0]
+    second = listroad[1]
+
+    one = first[0] # >= 1
+    other = second[0] # >= 1
+
+    if one == goal or other == goal:
+      way.append(goal)
+      return True
+
+    # came back from a sink
+    elif first[1] == 1 or second[1] == 1:
+      go = one if second[1] == 1 else other
+      if cnt[go-1] == maxcnt:
+
+        if not visited[go-1]:
+          pos = find(roads, go, cnt, goal, way, visited, n, maxcnt)
+          if pos:
+            return True
+
+      else:
+        way.append(go)
+        return True
+      
+    else:
+      go = one if cnt[one-1] <= cnt[other-1] else other
+
+      # if cnt[go] is same as max, then cnt[other] is also the same as max
+
+      if cnt[go-1] == maxcnt:
+
+        if not visited[one-1]:
+          pos = find(roads, one, cnt, goal, way, visited, n, maxcnt)
+          if pos:
+            return True
+        if not visited[other-1]:
+          pos = find(roads, other, cnt, goal, way, visited, n, maxcnt)
+          if pos:
+            return True
+
+      else:
+        # just go to less cnt node
+        way.append(go)
+        return True        
+
+  # 1~n here cuz max reached -> go to -1
+  # maybe optimization possible but seems to require delicate considerations
+  # it seems possible
+
+  else:
+    for to, j in roads[start].items():
+      if j != -1:
+        continue
+      else:
+        if not visited[to-1]:
+          pos = find(roads, to, cnt, goal, way, visited, n, maxcnt)
+          if pos:
+            return True
+
+  way.pop()
+  return False
+
+def care(roads, way, cnt):
+  # take care about cnt
+  # only the end part gets +1 cnt
+  index = len(way)-1
+  cnt[way[index]-1]+=1
+  index -= 1
+
+  while index>=1:
+    start = way[index]
+    to = way[index+1]
+
+    roads[start][to] += 1
+    roads[to][start] -= 1
+
+    index -= 1
+
+  start = way[index]
+  to = way[index+1]
+
+  roads[start][to] += 1
+  
+
+t = int(input())
+for i in range(t):
+
+  if i!=0:
+    input()
+
+  n, m = map(int, input().split())
+
+  # n+m+1 <= 331
+  roads = [{} for j in range(n+m+1)]
+
+  val = list(map(int, input().split()))
+
+  # 0 : source
+  # 1~n : sink
+  # n+1~n+m : matches(connected from 0 to sinks)
+
+  # indexed 0~n-1
+  maxcnt = deepcopy(val)
+
+  # same (a, b) pair would be in different match num(n+1+j) -> doesn't matter
+  # however putting together can be more efficient
+
+  # n+1~n+m
+  for j in range(m):
+    roads[0][n+1+j] = 0
+    a, b = map(int, input().split())
+    
+    # a!=b
+    roads[n+1+j][a] = 0
+    roads[n+1+j][b] = 0
+
+    roads[a][n+1+j] = 0
+    roads[b][n+1+j] = 0
+    
+    # indexed 0~n-1
+    maxcnt[a-1]+=1
+    maxcnt[b-1]+=1
+
+  maxmaxcnt = max(maxcnt)
+
+  string = ""
+
+  if m == 0:
+    for j in range(n):
+      if maxcnt[j] == maxmaxcnt:
+        string += "yes "
+      else:
+        string += "no "
+
+    string = string[:-1]
+    print("Case #"+str(i+1)+":", string)
+    continue
+
+  # can optimize more by appending no for cases curmaxcnt < max(val)
+  
+  # it is not an optimization but necessity
+
+  maxval = max(val)
+
+  for j in range(n):
+    curmaxcnt = maxcnt[j]
+    if curmaxcnt == maxmaxcnt:
+      string += "yes "
+      continue
+    if curmaxcnt < maxval:
+      string += "no "
+      continue
+      
+    newcnt = deepcopy(val)
+    
+    # visited[j] = True ?
+    
+    total = 0
+
+    newroads = deepcopy(roads)
+
+    # can optimize by directly starting from matches not from the source
+
+    while total != m:
+      
+      visited = [False]*(n+m+1)
+      way = []
+      # goal : 1~n addressing
+      pos = find(newroads, 0, newcnt, j+1, way, visited, n, curmaxcnt)
+
+      if not pos:
+        break
+
+      total += 1
+      
+      care(newroads, way, newcnt)
+    
+    #   print(newroads)
+    #   print(newcnt)
+    #   print("way")
+    #   print(way)
+
+    # print(j)
+    # print(curmaxcnt)
+    # print(newcnt)
+    # print(roads)
+    # print(newroads)
+    # print(total)
+    # print("finished")
+    # print()
+    if total == m:
+      string += "yes "
+    else:
+      string += "no "
+      
+  string = string[:-1]
+  
+  print("Case #"+str(i+1)+":", string)
