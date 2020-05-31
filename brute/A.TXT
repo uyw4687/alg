@@ -1,0 +1,424 @@
+# 00:00~23:59 
+# 0 -> 0, 8
+# 1 -> 0, 1, 3, 4, 7, 8, 9
+# 2 -> 2, 8
+# 3 -> 3, 8, 9
+# 4 -> 4, 8, 9
+# 5 -> 5, 6, 8, 9
+# 6 -> 6, 8
+# 7 -> 0, 3, 7, 8, 9
+# 8 -> 8
+# 9 -> 8, 9
+
+# t = 20
+# n = 20
+# 24:60
+
+# (7*4)make pair
+# (24*10 + 60*10)*20 taking care of n following inputs
+# different if each number are considered separately or not
+# (14*28)
+# 17220 per case
+# 17220 * 20 = 344400
+
+# 344000 < 10**6 : feasible
+
+# print(sorted([a, b]))
+
+# test if hour change is dealt with well 
+# if hour can't change but staying is possible -> certain minutes are discarded
+# if no minutes or hours that are possible are left, it's 'none'.
+# check everytime if it's possible
+# check when hour or the first digit of minute has to change
+
+# when make the flow properly
+# just need to check
+
+# first find possible last digit
+# then check if then, check if 5->0 is there in the first digit of the minute and then need to consider about 'hour changing'
+
+# 7*n check for each digit
+# last digit : +1(but 9->0)
+# others : stay or +1(but 5->0, 9->0, 2->0 each)
+# do the checks gleichzeitig
+
+# 28*n check for each digit
+# for at most 24*28 results
+
+# how to connect these two
+# sort possible hours, sort possible minutes and print -> fine
+
+# 5 cannot be derived or become something
+# so 59 can be represented only be 5x
+# 51 53 54 55 57 59
+# 51 59
+# 52 00(77)
+# so when minute changes, since 00 can only be 0/1/7 0/1/7 which cannot represent 5x, all except 59 dies in this case.
+# then we don't have to think about pairs
+# just thinking possible hours would be fine
+
+#   - 0
+# l1  l 2
+#   - 3
+# l4  l 5
+#   - 6
+
+#   - 7
+# l8  l 9
+#   - 10
+# l11 l12
+#   - 13
+
+from copy import deepcopy
+
+parts = []
+#0
+parts.append({0, 1, 2, 4, 5, 6})
+#1
+parts.append({2, 5})
+#2
+parts.append({0, 2, 3, 4, 6})
+#3
+parts.append({0, 2, 3, 5, 6})
+#4
+parts.append({1, 2, 3, 5})
+#5
+parts.append({0, 1, 3, 5, 6})
+#6
+parts.append({0, 1, 3, 4, 5, 6})
+#7
+parts.append({0, 2, 5})
+#8
+parts.append({0, 1, 2, 3, 4, 5, 6})
+#9
+parts.append({0, 1, 2, 3, 5, 6})
+
+#to T/F with length 10 -> faster
+#num interpreted, broken parts
+makepool = {}
+# 0
+makepool[0] = {0:set(), 8:{3}}
+# 1
+makepool[1] = {0:{0, 1, 4, 6}, 1:set(), 3:{0, 3, 6}, 4:{1, 3}, 7:{0}, 8:{0, 1, 3, 4, 6}, 9:{0, 1, 3, 6}}
+# 2
+makepool[2] = {2:set(), 8:{1, 5}}
+# 3
+makepool[3] = {3:set(), 8:{1, 4}, 9:{1}}
+# 4
+makepool[4] = {4:set(), 8:{0, 4, 6}, 9:{0, 6}}
+# 5
+makepool[5] = {5:set(), 6:{4}, 8:{2, 4}, 9:{2}}
+# 6
+makepool[6] = {6:set(), 8:{2}}
+# 7
+makepool[7] = {0:{1, 4, 6}, 3:{3, 6}, 7:set(), 8:{1, 3, 4, 6}, 9:{1, 3, 6}}
+# 8
+makepool[8] = {8:set()}
+# 9
+makepool[9] = {8:{4}, 9:set()}
+
+def trim1(pool):
+  newpool = []
+  for item in pool.items():
+    if item[0] < 3:
+      newpool.append(item)
+  return newpool
+
+def trim3(pool):
+  newpool = []
+  for item in pool.items():
+    if item[0] < 6:
+      newpool.append(item)
+  return newpool
+
+def makehours(pool1, pool2):
+  hours = []
+  for item1 in pool1:
+    base = item1[0]*10
+    if item1[0] == 2:
+      for item2 in pool2:
+        if item2[0] < 4:
+          hours.append([base+item2[0], deepcopy(item1[1]), deepcopy(item2[1])])
+    else:
+      for item2 in pool2:
+        hours.append([base+item2[0], deepcopy(item1[1]), deepcopy(item2[1])])
+  return hours
+
+def makeminutes(pool3, pool4):
+  minutes = []
+  for item3 in pool3:
+    base = item3[0]*10
+    for item4 in pool4:
+      minutes.append([base+item4[0], deepcopy(item3[1]), deepcopy(item4[1])])
+  return minutes
+
+def maketimes(hours, minutes, used):
+  times = []
+  for hour in hours:
+    for minute in minutes:
+      times.append([deepcopy(hour), deepcopy(minute), used])
+  return times
+
+def check(item1, item2, pool1, pool2):
+  # pool1 is usually smaller
+  if item1 not in pool1:
+    return False
+  if item2 not in pool2:
+    return False
+  return True
+
+def incrementtimes(times):
+  newtimes = []
+  for hour, minute, used in times:
+    newtimes.append(incrementtime(hour,minute, used))
+  return newtimes
+
+def decrementtimes(times,n):
+  newtimes = []
+  for hour, minute, used in times:
+    newtimes.append(decrementtime(hour,minute,used,n))
+  return newtimes
+
+def incrementtime(hour,minute,used):
+  minute[0]+=1
+  if minute[0]==60:
+    minute[0]=0
+    hour[0]+=1
+    if hour[0]==24:
+      hour[0]=0
+  return [hour,minute,used]
+
+def decrementtime(hour,minute,used,n):
+  minute[0]-=n
+  while minute[0]<0:
+    minute[0]+=60
+    hour[0]-=1
+    if hour[0]==-1:
+      hour[0]=23
+  return [hour,minute,used]
+
+def printstring(times):
+  string = ''
+  for hour, minute, used in times:
+    hour = str(hour[0]).zfill(2)
+    minute = str(minute[0]).zfill(2)
+    string+=(hour+':'+minute+'\n')
+  return string[:-1]
+
+def checkvalid(broken, digit1, digit2):
+  if len(broken[0]&parts[digit1])!=0:
+    return False
+  if len(broken[1]&parts[digit2])!=0:
+    return False
+  return True
+
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n = int(input())
+  inputs = []
+  for j in range(n):
+    get = input()
+    inputs.append(get)
+
+  print("Case #"+str(i+1)+":")
+  digit1 = int(inputs[0][0])
+  digit2 = int(inputs[0][1])
+  digit3 = int(inputs[0][3])
+  digit4 = int(inputs[0][4])
+  
+  pool1 = deepcopy(trim1(makepool[digit1]))
+  pool2 = deepcopy(list(makepool[digit2].items()))
+  pool3 = deepcopy(trim3(makepool[digit3]))
+  pool4 = deepcopy(list(makepool[digit4].items()))
+  
+  hours = makehours(pool1, pool2)#trim again
+  if len(hours) == 0 or len(pool3) == 0:
+    print('none')
+    continue
+
+  minutes = makeminutes(pool3, pool4)
+  times = maketimes(hours, minutes, [{digit1}, {digit2}, {digit3}, {digit4}])
+
+  # make time? 24*28
+  # 24*28 * 20
+
+  # or make minutes : efficient but complex
+  # hour change
+  # (51,59) 51->52, 59->00
+
+  # storing also the original value to remember what it was
+
+  # print("_____________________________")
+  # for time in times:
+  #   print(time)
+
+  pos = True
+
+  #traverse through inputs
+  #O(20)
+  for j in range(1, n):
+    curr = inputs[j]
+    times = incrementtimes(times)
+
+    #check hours - don't have to when it's the same as before(optimization possibility)
+    #O(24*14)
+    digit1 = int(curr[0])
+    digit2 = int(curr[1])
+    digit3 = int(curr[3])
+    digit4 = int(curr[4])
+    
+    pool1 = makepool[digit1]
+    pool2 = makepool[digit2]
+    pool3 = makepool[digit3]
+    pool4 = makepool[digit4]
+    newtimes = []
+    prevhour = -1
+    prevposshour = None
+    doneminutes = {}
+    #might not be needed
+    prevhour1 = set()
+    prevhour2 = set()
+
+    for hour, minute, used in times:
+      used[0].add(digit1)
+      used[1].add(digit2)
+      used[2].add(digit3)
+      used[3].add(digit4)
+      if prevhour != hour[0]:
+        prevhour=hour[0]
+        #so managed to use the others
+        valid = checkvalid(hour[1:], digit1, digit2)
+        prevposshour = valid
+        if not valid:
+          continue
+        item1 = hour[0]//10
+        item2 = hour[0]%10
+        #can express it
+        pos2 = check(item1, item2, pool1, pool2)
+        prevposshour = pos2
+        if not pos2:
+          continue
+        #update
+        hour[1] |= makepool[digit1][item1]
+        hour[2] |= makepool[digit2][item2]
+        prevposshour=pos2
+        #might not be needed
+        prevhour1 = deepcopy(hour[1])
+        prevhour2 = deepcopy(hour[2])
+      #already done
+      #impossible
+      elif not prevposshour:
+        continue
+      #done and possible
+      else:
+        #might not be needed
+        hour[1] = deepcopy(prevhour1)
+        hour[2] = deepcopy(prevhour2)
+      
+      # print(doneminutes.get(minute[0]))
+      # print(minute[1])
+      # print(minute[2])
+      # print(digit3)
+      # print(digit4)
+      # print(makepool[digit3][minute[0]//10])
+      # print(makepool[digit4][minute[0]%10])
+      # print()
+
+      done=doneminutes.get(minute[0])
+      if done == None:
+        valid = checkvalid(minute[1:], digit3, digit4)
+        doneminutes[minute[0]]=[valid]
+        if not valid:
+          continue
+        item3 = minute[0]//10
+        item4 = minute[0]%10
+        pos2 = check(item3, item4, pool3, pool4)
+        doneminutes[minute[0]]=[pos2]
+        if not pos2:
+          continue
+        minute[1] |= makepool[digit3][item3]
+        minute[2] |= makepool[digit4][item4]
+        # print("###############")
+        # print(doneminutes)
+        # print(digit4)
+        # print(item4)
+        # print(makepool[digit4][item4])
+        # print(minute[0])
+        # print(minute[1])
+        # print(minute[2])
+        # print("################")
+        doneminutes[minute[0]]=[deepcopy(minute[1]), deepcopy(minute[2])]
+      elif len(done) == 1: #False
+        continue
+      else:
+        prevminute1, prevminute2 = doneminutes[minute[0]]
+        minute[1] = deepcopy(prevminute1)
+        minute[2] = deepcopy(prevminute2)
+      newtimes.append([hour, minute, used])
+
+    times = newtimes
+    if len(times)==0:
+      pos = False
+      break
+
+  if not pos:
+    print('none')
+    continue
+  
+  # print("_____________________________")
+  # for time in times:
+  #   print(time)
+
+  newtimes = []
+  for time in times:
+    impos = False
+    # print(time)
+    for j in range(4):
+      hour, minute, used = time
+      forbidden = [*hour[1:], *minute[1:]]
+      for item in used[j]:
+        # print(time)
+        # print(j)
+        # print(forbidden[j])
+        # print(item)
+        # print(parts[item])
+        # print(forbidden[j]&parts[item])
+        # print(len(forbidden[j]&parts[item])!=0)
+        # print()
+        if len(forbidden[j]&parts[item])!=0:
+          impos = True
+          break
+      if impos:
+        break
+    if impos:
+      continue
+    newtimes.append(time)
+  times = newtimes
+
+  # print("_____________________________")
+  # for time in times:
+  #   print(time)
+
+  if len(times)==0:
+    print('none')
+    continue
+
+  #incremented n times
+  #so decrement it by n
+  times = decrementtimes(times, n-1)
+  times = sorted(times)
+  string = printstring(times)
+  print(string)
+
+# 9 -> 0
+# 134579 
+# 017
+
+# 11:51 to 13:11 as 23:59 to 00:00
+#23:59 -> 00:00
+#when 2 is remaining(not upper case)
+#first 0 cannot be expressed also as 2
+#since 2 can only be expressed by 2
+#5 can only be expressed by 5

@@ -1,0 +1,80 @@
+#6^13 10^11
+def getnext(start, curnum, num, rest, n):
+  nexts=[]
+  for i in range(n):
+    if i==start or curnum[i]==num[i]:
+      continue
+    restricted = rest.get((i, curnum[i]))
+    if restricted != None:
+      #0~n-1
+      pos = True
+      for char, chap in restricted:
+        if curnum[char] <= chap:
+          pos = False
+          break
+      if not pos:
+        continue
+    nexts.append(i)
+  return nexts      
+
+def go(start, curnum, num, rest, ccnt, ltotal, totalcnt, n, done):
+  if ccnt==ltotal:
+    totalcnt[0]+=1
+    return 1
+  donecnt = done.get((start, *curnum))
+  if donecnt!=None:
+    totalcnt[0]+=donecnt
+    return donecnt
+  nexts = getnext(start, curnum, num, rest, n)
+  #if len(nexts) == 0 just returns
+  #without incrementing count
+  #and return 0
+  #then goes for next possibilities
+  subtotal = 0
+  for to in nexts:
+    curnum[to]+=1
+    subtotal += go(to, curnum, num, rest, ccnt+1, ltotal, totalcnt, n, done)
+    curnum[to]-=1
+  done[(start, *curnum)]=subtotal
+  return subtotal
+
+def cnt(num, n, rest, ltotal):
+  starts=[]
+  totalcnt=[0]
+  for i in range(n):
+    if rest.get((i,0))==None:
+      starts.append(i)
+  done={}
+  curnum = [0]*n
+  for start in starts:
+    curnum[start]+=1
+    go(start, curnum, num, rest, 1, ltotal, totalcnt, n, done)
+    curnum[start]-=1
+  return totalcnt[0]
+    
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n, m = map(int, input().split())
+  num = []
+  ltotal = 0
+  for j in range(n):
+    cnum = int(input())
+    ltotal += cnum
+    num.append(cnum)
+  rest = {}
+  for j in range(m):
+    c, p, d, q = map(int, input().split())
+    #0~n-1 0~a-1 0~n-1 0~a-1
+    if rest.get((d-1, q-1))!=None:
+      rest[(d-1,q-1)].append((c-1,p-1))
+    else:
+      rest[(d-1,q-1)]=[(c-1,p-1)]
+  #input finished
+
+  print("Case #"+str(i+1)+":", cnt(num, n, rest, ltotal))
+
+  #remember how many's possible in the left len with the same char before
+  #optimize
+  #using previous nexts

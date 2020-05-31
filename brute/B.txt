@@ -1,0 +1,65 @@
+#2^20 times 100 times 20 10^10 600s
+def check(pref, curpref):
+  for judge in pref:
+    pos = False
+    for item, tf in judge:
+      if curpref[item]==tf:
+        pos = True
+        break
+    if not pos:
+      return False
+  return True
+
+#when append, pop is inefficient think of other methods
+def permexec(cnt, pref, m, curpref):
+  curpref.append(True)
+  if cnt == m-1:
+    if check(pref, curpref):
+      return True
+  else:
+    if permexec(cnt+1, pref, m, curpref):
+      return True
+  
+  curpref[cnt]=False
+  
+  if cnt == m-1:
+    if check(pref, curpref):
+      return True
+  else:
+    if permexec(cnt+1, pref, m, curpref):
+      return True
+  curpref.pop()
+  return False
+
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  m, n = map(int, input().split())
+  pref = []
+  #input finished
+  for j in range(n):
+    # can be 0 entry here
+    judge = []
+    line = list(map(int, input().split()))
+    length = len(line)-1
+    for k in range(length):
+      #1~n -1~-n
+      curr = line[k]
+      #0~n-1
+      if curr > 0:#True
+        judge.append((curr-1, True))
+      if curr < 0:#False
+        judge.append((-curr-1, False))
+    pref.append(judge)
+  pref.sort(key=(lambda a:len(a)))
+
+  pos = 'yes' if permexec(0, pref, m, []) else 'no'
+  print("Case #"+str(i+1)+":", pos)
+  #10^17 total : wrong backtracking
+  #2**20 < 10**7 all
+  #but at most 2000 traversal
+  #but only possible once
+  #2**20*100 ~ 20s -> go
+  #or only needed ones(appearing in the judges' list)
+  #by length of each judge -> maybe for m<=20 immediate answer is possible

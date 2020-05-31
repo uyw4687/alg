@@ -1,0 +1,56 @@
+def findways(r, c):
+  ways = []
+  
+  if r!=0:
+    if not visited[(r-1)*w+c] and road[r-1][c]!='#':
+      ways.append((r-1, c))
+  if c!=0:
+    if not visited[r*w+c-1] and road[r][c-1]!='#':
+      ways.append((r, c-1))
+  if c!=w-1:
+    if not visited[r*w+c+1] and road[r][c+1]!='#':
+      ways.append((r, c+1))
+  if r!=h-1:
+    if not visited[(r+1)*w+c] and road[r+1][c]!='#':
+      ways.append((r+1, c))
+  return ways
+
+def go(r, c, curr):
+  for way in findways(r, c):
+    rto, cto = way
+    vindex = rto*w+cto
+    there = road[rto][cto]=='T'
+    if there:
+      curr+=1
+      if curr==cnt:
+        return True
+    visited[vindex]=True
+    if go(rto, cto, curr):
+      return True
+    if there:
+      curr-=1
+    visited[vindex]=False
+  return False
+
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  w, h = map(int, input().split())
+  road=[]
+  start = (100, 100)
+  cnt = 0
+  for j in range(h):
+    string = list(input())
+    for k in range(w):
+      if string[k]=='L':
+        start = (j, k)
+      elif string[k]=='T':
+        cnt+=1
+    road.append(string)
+
+  #0~h*w-1
+  visited=[False]*(h*w)
+  visited[start[0]*w+start[1]]=True
+  result = 'yes' if go(*start, 0) else 'no'
+  print("Case #"+str(i+1)+":", result)

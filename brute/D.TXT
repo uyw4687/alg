@@ -1,0 +1,107 @@
+#6empty : 6950
+#7empty : 17
+#8empty : 159039
+#9empty : 31039
+#8impossible : 35810
+# ........
+# ........
+# ........
+# ........
+# ........
+# ........
+# .....x..
+# .......x
+#10empty : 3337668 about 10s without printing
+#12empty : 1545151 about 7s without printing
+#15empty : more than 5m
+
+#time test after making this program
+#if seems possible within 1 sec submit
+#if time limit think about the optimization of selecting the place that has least sum of possible place diagonally
+def checkvffm(i, j, row, col, nediag, sediag, n):
+  if row[i] or col[j] or nediag[i+j] or sediag[i-j+(n-1)]:
+    return False
+  row[i]=col[j]=nediag[i+j]=sediag[i-j+(n-1)]=True
+  return True
+
+def checkvf(b, n):
+  row = [False]*n
+  col = [False]*n
+  #+
+  nediag=[False]*(2*n-1)#0~2n-2
+  #-, +(n-1)
+  sediag = [False]*(2*n-1)#0~2n-2
+  valid = True
+  total = 0
+  for i in range(n):
+    currrow = b[i]
+    for j in range(n):
+      curr = currrow[j]
+      if curr == 'x':
+        #m(achen) -> also do the assignment
+        total+=1
+        valid = checkvffm(i, j, row, col, nediag, sediag, n)
+        if not valid:
+          break
+    if not valid:
+      break
+  return valid, row, col, nediag, sediag, total
+
+#no conflicts cuz checked before called
+#crind : current row index
+def dealandgo(b, col, nediag, sediag, n, row, r):
+  
+  pos = False
+  while True:
+    if row[r]:
+      r+=1
+      if r==n:
+        return True
+    else:
+      break
+
+  for c in range(n):
+    if col[c] or nediag[r+c] or sediag[r-c+(n-1)]:
+      continue
+    b[r][c]='x'
+    if r==n-1:
+      return True
+    col[c]=nediag[r+c]=sediag[r-c+(n-1)] = True
+    pos = dealandgo(b, col, nediag, sediag, n, row, r+1)
+    if pos:
+      return True
+    col[c]=nediag[r+c]=sediag[r-c+(n-1)] = False
+    b[r][c]='.'
+  #undo
+  return False
+
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n = int(input())
+  b = []
+  for j in range(n):
+    b.append(list(input()))
+  valid, row, col, nediag, sediag, total = checkvf(b, n)
+  #input validated
+  print("Case #"+str(i+1)+":")
+  if not valid:
+    print('impossible')
+    continue
+
+  if n-total == 0:
+    for j in range(n):
+      print(''.join(b[j]))
+    continue
+
+  pos = False
+  pos = dealandgo(b, col, nediag, sediag, n, row, 0)
+  if pos:
+    for j in range(n):
+      print(''.join(b[j]))
+  else:
+    print('impossible')
+
+#worst case
+#15! * 15!
