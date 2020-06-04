@@ -1,0 +1,41 @@
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  l, n, d = map(int, input().split())
+  if n==0 or d==0:
+    input()
+    print("Case #"+str(i+1)+":", "impossible")
+    continue
+  loc = list(map(int, input().split()))
+  loc.sort()
+
+  cnt = 0
+  curr = -d
+  ind = 0
+  impos = False
+  while True:
+    pool = []
+    for j in range(ind, n):
+      if loc[j] <= curr+2*d:
+        pool.append(loc[j])
+      else:
+        break
+    if len(pool)==0:
+      impos = True
+      break
+    cnt+=1
+    curr=pool[-1]
+    ind = j
+    if curr+d>=l:
+      break
+    if j==n-1 and curr==loc[j]:
+      if curr+d<l:
+        impos = True
+        break
+
+  if not impos:
+    print("Case #"+str(i+1)+":", cnt)
+  else:
+    print("Case #"+str(i+1)+":", "impossible")
+  

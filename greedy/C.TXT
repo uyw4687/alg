@@ -1,0 +1,60 @@
+from math import floor, ceil
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n = int(input())
+  cnt = [0]*n
+  cons = []
+  ceiling = ceil(n/2)
+  #0~ceiling-1, ceil(n/2)~n-1
+  group = [True]*ceiling+[False]*floor(n/2)
+  ingroup = [0]*n  
+  for j in range(n):
+    rein = list(map(int, input().split()))
+    cnt[j] = rein[0]
+    cons.append(rein[1:])
+  
+  for j in range(ceiling):
+    for to in cons[j]:
+      # 1~ceiling
+      if to <= ceiling:
+        ingroup[j]+=1
+  for j in range(ceiling, n):
+    for to in cons[j]:
+      # 1~ceiling
+      if to > ceiling:
+        ingroup[j]+=1
+
+  #O(90000)
+  while True:
+    exist = False
+    for j in range(n):
+      curr = ingroup[j]
+      #can optimize
+      #store cnt[j]-2*curr
+      if cnt[j]-curr >= curr:
+        continue
+      exist=True
+      origgroup = group[j]
+      ingroup[j] = cnt[j]-curr
+      for to in cons[j]:
+        to-=1
+        if group[to]==origgroup:
+          ingroup[to]-=1
+        else:
+          ingroup[to]+=1
+      group[j] = not origgroup
+    if not exist:
+      break
+
+  string = ''
+  for j in range(n):
+    if group[j]:
+      string+=str(j+1)+' '
+  string = string[:-1]
+
+  print("Case #"+str(i+1)+":")
+  print(string)
+
+  #check empty

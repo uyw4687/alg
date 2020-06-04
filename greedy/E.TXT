@@ -1,0 +1,82 @@
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n, m = map(int, input().split())
+  humans=[]
+  mices=[]
+  for j in range(n):
+    humans.append(list(input()))
+  for j in range(m):
+    mices.append(list(input()))
+  length=len(humans[0])
+  humancnt=[[0]*4 for j in range(length)]
+  micecnt=[[0]*4 for j in range(length)]
+  match={'A':0,'C':1,'G':2,'T':3}
+  for j in range(n):
+    curr=humans[j]
+    for k in range(length):
+      humancnt[k][match[curr[k]]]+=1
+  for j in range(m):
+    curr=mices[j]
+    for k in range(length):
+      micecnt[k][match[curr[k]]]+=1
+  total=[[0]*4 for j in range(4)]
+  for j in range(length):
+    currhuman=humancnt[j]
+    currmice=micecnt[j]
+    for k in range(4):
+      for l in range(4):
+        total[k][l]+=currhuman[k]*currmice[l]
+  for r in range(1,4):
+    for c in range(r):
+      total[c][r]+=total[r][c]
+  descending=[]#big to small
+  for r in range(4):
+    descending.append((2*total[r][r],(r,r)))
+  for k in range(1,4):
+    for r in range(4-k):
+      descending.append((total[r][r+k],(r,r+k)))
+  descending.sort(key=(lambda a:a[0]), reverse=True)
+  s,e=0,9
+  available=[[10]*4 for j in range(4)]
+  for j in range(4):
+    available[j][j]=5
+  availableminus=[[10]*4 for j in range(4)]
+  for j in range(4):
+    availableminus[j][j]=0
+  ans=0
+  while True:
+    while True:
+      availmininda,availminindb=descending[e][1]
+      if availableminus[availmininda][availminindb]!=0:
+        break
+      e-=1
+    if s>=e:
+      break
+    if descending[s][0]<=descending[e][0]:
+      break
+    availinda,availindb=descending[s][1]
+    availplus=available[availinda][availindb]
+    availmininda,availminindb=descending[e][1]
+    availminus=availableminus[availmininda][availminindb]
+    cntplus=descending[s][0]
+    cntminus=descending[e][0]
+    if availplus==availminus:
+      available[availinda][availindb]=0
+      availableminus[availmininda][availminindb]=0
+      s+=1
+      e-=1
+      ans+=(cntplus-cntminus)*availplus
+    elif availplus>availminus:#10,5
+      available[availinda][availindb]=availplus-availminus
+      availableminus[availmininda][availminindb]=0
+      e-=1
+      ans+=(cntplus-cntminus)*availminus
+    else:#5,10
+      available[availinda][availindb]=0
+      availableminus[availmininda][availminindb]=availminus-availplus
+      s+=1
+      ans+=(cntplus-cntminus)*availplus
+  print("Case #"+str(i+1)+":",ans)
+  

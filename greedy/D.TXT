@@ -1,0 +1,20 @@
+from heapq import heappush, heappop
+from copy import deepcopy
+
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n, m = map(int, input().split())
+  loads = []
+  for j in range(n):
+    loads.append(int(input()))
+  if n<=m:
+    print("Case #"+str(i+1)+":", max(loads))
+    continue
+  loads.sort(reverse=True)
+  machines = list(reversed(deepcopy(loads[:m])))
+  for j in range(m, n):
+    least = heappop(machines)
+    heappush(machines, least+loads[j])
+  print("Case #"+str(i+1)+":", max(machines))

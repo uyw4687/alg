@@ -1,0 +1,138 @@
+from copy import deepcopy
+t=int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n,m=map(int,input().split())
+  fcs=list(map(int,input().split()))
+  dcs=[]
+  minindex=-1
+  minvalue=(10**6+10**6*200)*10
+  for j in range(n):
+    dcslist=list(map(int,input().split()))
+    totalsum=sum(dcslist)+fcs[j]
+    if totalsum<minvalue:
+      minvalue=totalsum
+      minindex=j
+    dcs.append(dcslist)
+  least=deepcopy(dcs[minindex])
+  source=[minindex]*m
+  cntin=[0]*minindex+[m]+[0]*(n-1-minindex)
+  currcost=minvalue
+  atleast=1/(2*(n+m)**2)
+  currentcustomers=[set()for j in range(n)]
+  currentcustomers[minindex]=set(range(m))
+  inside={minindex}
+  outside=set(range(minindex))
+  outside|=set(range(minindex+1, n))
+  #O(10**6*20000*2)
+  while True:
+    found=False
+    #add
+    #maybe making a 'valid' lists would make it faster
+    #check with automatic tests
+    for j in range(n):
+      if cntin[j]!=0:
+        continue
+      plus=fcs[j]
+      minus=0
+      currcosts=dcs[j]
+      goneelems=[]
+      goneelemscntfactories=[0]*n
+      for k in range(m):
+        diff=least[k]-currcosts[k]
+        if diff>=0:
+          minus+=diff
+          currsource=source[k]
+          goneelemscntfactories[currsource]+=1
+          if cntin[currsource]==goneelemscntfactories[currsource]:
+            minus+=fcs[currsource]
+          goneelems.append(k)
+      currdiff=minus-plus
+      # print(minus, plus, currdiff, atleast, currcost, atleast*currcost, goneelems)
+      # print("cntin")
+      # print(cntin)
+      # print("least")
+      # print(least)
+      # print("source")
+      # print(source)
+      # print("currcosts")
+      # print(currcosts)
+      # print("outside")
+      # print(outside)
+      # print("inside")
+      # print(inside)
+      # print("currentcustomers")
+      # print(currentcustomers)
+      if currdiff>=atleast*currcost:
+        found=True
+        currcost-=currdiff
+        for elem in goneelems:
+          currsource=source[elem]
+          least[elem]=currcosts[elem]
+          source[elem]=j
+          currentcustomers[currsource].remove(elem)
+          cntin[currsource]-=1
+          if cntin[currsource]==0:
+            inside.remove(currsource)
+            outside.add(currsource)
+          cntin[j]+=1
+          currentcustomers[j].add(elem)
+        inside.add(j)
+        outside.remove(j)
+      # print()
+    if not found:
+      # print("HERERER############################################333", outside, inside)
+      #swap
+      done=[False]*n
+      for j in outside:
+        for k in inside:
+          if done[k]:
+            continue
+          costj=fcs[j]
+          costk=fcs[k]
+          # print(currentcustomers[k])
+          for cust in currentcustomers[k]:
+            costj+=dcs[j][cust]
+            costk+=dcs[k][cust]
+          # print(costj)
+          # print(costk)
+          # print(j,k,inside,outside)
+          # print(done)
+          diffchange=costk-costj
+          if diffchange>atleast*currcost:
+            outside.remove(j)
+            outside.add(k)
+            inside.remove(k)
+            inside.add(j)
+            done[k]=True
+            found=True
+            cntin[j]=cntin[k]
+            cntin[k]=0
+            currcost-=diffchange
+            for cust in currentcustomers[k]:
+              least[cust]=dcs[j][cust]
+              source[cust]=j
+            currentcustomers[j]=currentcustomers[k]
+            currentcustomers[k]=set()
+            # print(currentcustomers)
+            # print(least)
+            # print(cntin)
+            # print(done)
+            # print(source)
+            break
+    if not found:
+      break
+  print("Case #"+str(i+1)+":",currcost)
+  inlist=[False]*n
+  inlistappended=[]
+  customersappended=[[]for j in range(n)]
+  for j in range(m):
+    currsource=source[j]
+    if not inlist[currsource]:
+      inlist[currsource]=True
+      inlistappended.append(currsource)
+    customersappended[currsource].append(j+1)
+  inlistappended.sort()
+  for elem in inlistappended:
+    print(elem+1,' '.join(list(map(str, customersappended[elem]))))
