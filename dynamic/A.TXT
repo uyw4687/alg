@@ -1,0 +1,43 @@
+def res(c,v):
+  result=[-1]*(c+1)
+  prev=[-1]*(c+1)
+  for item in v:
+    if item>c:
+      break
+    result[item]=1
+    prev[item]=item
+  for i in range(2,c+1):
+    if result[i]!=-1:
+      continue
+    mincnt=i
+    minind=i-1
+    #i : 3
+    #v : 1 2 4
+    for item in v[1:]:
+      if i<item:
+        break
+      if result[i-item]+1<mincnt:
+        mincnt=result[i-item]+1
+        minind=i-item
+    result[i]=mincnt
+    prev[i]=minind
+
+  currpos=c
+  prevpos=prev[currpos]
+  cntcoins=[0]*n
+  mapvalind={j:i for i,j in enumerate(v)}
+  while prevpos!=currpos:
+    cntcoins[mapvalind[currpos-prevpos]]+=1
+    currpos=prevpos
+    prevpos=prev[currpos]
+  cntcoins[mapvalind[prevpos]]+=1
+  return ' '.join(map(str,cntcoins))
+
+t = int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n, c = map(int, input().split())
+  v = list(map(int, input().split()))
+  
+  print("Case #"+str(i+1)+":", res(c,v))

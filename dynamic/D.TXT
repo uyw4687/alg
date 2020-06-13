@@ -1,0 +1,30 @@
+import sys
+input=sys.stdin.readline
+t=int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n=int(input())
+  tours=[]
+  for j in range(n):
+    s,e,m=map(int,input().split())
+    tours.append(((e,s),m))
+  tours.sort(key=(lambda a:a[0]))
+  money=[0]*5001
+  prev=0
+  prevv=0
+  for j in range(n):
+    ctour=tours[j]
+    ce=ctour[0][0]
+    cs=ctour[0][1]
+    cv=ctour[1]
+    for k in range(prev,ce):
+      money[k]=prevv
+    money[ce]=prevv if prevv>cv else cv
+    if money[ce]<money[cs-1]+cv:
+      money[ce]=money[cs-1]+cv
+    prev=ce
+    prevv=money[ce]
+  
+  print("Case #"+str(i+1)+":", money[tours[-1][0][0]])
+  
