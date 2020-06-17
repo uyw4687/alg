@@ -1,0 +1,36 @@
+import sys
+input=sys.stdin.readline
+def res(q,p,n):
+  c=[0]*(10**5+1)
+  u=set()
+  du=q
+  prev=2
+  while du!=1:
+    for j in range(prev,du+1):
+      if du%j==0:
+        du//=j
+        prev=j
+        if p%j==0:
+          p//=j
+          q//=j
+          break
+        u.add(j)
+        c[j]+=n
+        break
+  da=0
+  for j in range(1,n+1):
+    da+=((p**j)*(q**(n-j)))
+  for ui in u:
+    while c[ui]!=0:
+      if da%ui!=0:
+        break
+      da//=ui
+      c[ui]-=1
+  du=1
+  for ui in u:
+    du*=(ui**c[ui])
+  return str(da)+"/"+str(du)
+t=int(input())
+for i in range(1,t+1):
+  n,p,q=map(int,input().split())
+  print("Case #"+str(i)+":",res(q,p,n))

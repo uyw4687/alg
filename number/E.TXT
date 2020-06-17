@@ -1,0 +1,80 @@
+import sys
+input=sys.stdin.readline
+from copy import deepcopy
+def rres(ds,m,c,l,done,sumrev,mulrev):
+  if m<=l-c:
+    return mulrev[c]
+  elif m>sumrev[c]:
+    return 0
+  else:
+    al=done[c].get(m)
+    if al!=None:
+      return al
+    if c==l-1:
+      total=ds[c]-m+1
+      done[c][m]=total
+      return total
+    total=0
+    for taken in range(max(1,m-sumrev[c+1]),ds[c]+1):
+      total+=rres(ds,m-taken,c+1,l,done,sumrev,mulrev)
+    done[c][m]=total
+    return total
+
+def div(cnt,vs):
+  fs=[0]*21
+  used=set()
+  for v in vs:
+    prev=2
+    while v!=1:
+      for dv in range(prev,v+1):
+        if v%dv==0:
+          used.add(dv)
+          fs[dv]+=1
+          v//=dv
+          prev=dv
+          break
+  for e in used:
+    while fs[e]!=0:
+      if cnt%e!=0:
+        break
+      cnt//=e
+      fs[e]-=1
+  newd=1
+  for e in used:
+    if fs[e]!=0:
+      newd*=(e**(fs[e]))
+  return str(cnt)+"/"+str(newd)
+  
+def res(ds,m,c,l,done,sumrev,mulrev):
+  if m<=l:
+    return "1/1"
+  elif m>sumrev[0]:
+    return "0/1"
+  elif l==1:
+    return div(ds[0]-m+1,ds)
+  else:
+    total=0
+    for taken in range(max(1,m-sumrev[1]),ds[0]+1):
+      total+=rres(ds,m-taken,c+1,l,done,sumrev,mulrev)
+    return div(total,ds)
+t=int(input())
+for i in range(1,t+1):
+  n,d=input().split()
+  n=int(n)
+  d=d.split('+')
+  ds=[]
+  for di in d:
+    a,b=map(int,di.split('d'))
+    for j in range(a):
+      ds.append(b)
+  ds.sort()
+  lends=len(ds)
+  sumrev=deepcopy(ds)
+  mulrev=deepcopy(ds)
+  for j in range(lends-2,-1,-1):
+    sumrev[j]+=sumrev[j+1]
+    mulrev[j]*=mulrev[j+1]
+  sumrev.append(0)
+  done=[{}for j in range(lends)]
+  print("Case #"+str(i)+":",res(ds,n,0,lends,done,sumrev,mulrev))
+

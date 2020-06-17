@@ -1,0 +1,66 @@
+import sys
+input=sys.stdin.readline
+
+def gcd(a,b,res):
+  if b==0:
+    return a
+  res.append([a,a//b,b])
+  gcd(b,a%b,res)
+def mi(a,b):
+  res=[]
+  gcd(b,a,res)
+  res.pop()
+  curr=res.pop()
+  curr[0]=1
+  curr[1]*=-1
+  for item in res[::-1]:
+    curr[0],curr[1]=curr[1],curr[0]-item[1]*curr[1]
+    curr[2]=item[2]
+  if curr[1]<0:
+    curr[1]+=(a*b)
+  return curr[1]
+def big(s,r,k):
+  return r+s*int((k-r)/s)
+t=int(input())
+for i in range(1,t+1):
+  if i!=1:
+    input()
+  n,k=map(int,input().split())
+  cs=[]
+  used={}
+  impos=False
+  for j in range(n):
+    s,r=map(int,input().split())
+    if s==1 or impos:
+      continue
+    putbef=used.get(s)
+    if putbef==None:
+      used[s]=r
+    else:
+      if putbef!=r:
+        impos=True
+      continue
+    cs.append([s,r])
+  lencs=len(cs)
+  bigg=-1
+  if impos:
+    pass
+  elif lencs==0:
+    bigg=k
+  elif lencs==1:
+    if cs[0][1]<=k:
+      bigg=big(*cs[0],k)
+  else:
+    inn,ina=cs[0]
+    for j in range(lencs-1):
+      innn,inaa=cs[j+1]
+      inm,inmm=mi(inn,innn),mi(innn,inn)
+      newn=inn*innn
+      inx=(inaa*inm*inn+ina*inmm*innn)%newn
+      inn,ina=newn,inx
+    if ina<=k:
+      bigg=big(inn,inx,k)
+  if bigg!=-1:
+    print("Case #"+str(i)+':',bigg)
+  else:
+    print("Case #"+str(i)+':',"impossible")

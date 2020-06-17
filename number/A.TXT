@@ -1,0 +1,21 @@
+import sys
+input=sys.stdin.readline
+def getgcd(a,b):
+  if a==0:
+    return b
+  return getgcd(b%a,a)
+
+def gcd(nums,n):
+  cgcd=getgcd(nums[0],nums[1])
+  for j in range(2,n):
+    cgcd=getgcd(cgcd,nums[j])
+  return cgcd
+
+t=int(input())
+for i in range(1,t+1):
+  if i!=1:
+    input()
+  n=int(input())
+  nums=list(map(int,input().split()))
+  nums.sort()
+  print("Case #"+str(i)+":",gcd(nums,n))

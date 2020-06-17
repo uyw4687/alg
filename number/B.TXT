@@ -1,0 +1,26 @@
+import sys
+input=sys.stdin.readline
+
+def x(cnt,n,y,last,cc,thress,res):
+  if cnt==n:
+    return True, res
+  for j in l[last][(10-cc%10)%10]:
+    succ,result=x(cnt+1,n,y,last,((cc+y*j)%thress)//10,thress//10,j*(10**cnt)+res)
+    if succ:
+      return succ,result
+  return False, None
+
+l=[[[]for i in range(10)]for j in range(10)]#0~9
+for i in range(10):
+  for j in range(10):
+    l[i][(i*j)%10].append(j)
+     
+t=int(input())
+for i in range(1,t+1):
+  n,y=map(int,input().split())
+  last=y%10
+  res=l[last][1][0]
+  thres=10**n
+  c=((y*res)%thres)//10
+  thres//=10
+  print("Case #"+str(i)+":",x(1,n,y,last,c,thres,res)[1])
