@@ -1,0 +1,63 @@
+import sys
+input=sys.stdin.readline
+#just if the starting point is below the line, it's True
+def inl(x,y,incl,a,b):
+  if a<x:
+    return False
+  if (b-y)==(incl*(a-x)):
+    return True
+  return False
+def m(x,y,incl,a,b,aa,bb):
+  if (a<x and aa<x) or (b<y and bb<y):
+    return False
+  #the two points probably should not be the same
+  if (bb-b)==(incl*(aa-a)):
+    return False
+  if aa==a:
+    py=incl*(a-x)+y
+    if x<=a and (b<=py<=bb or bb<=py<=b):
+      # print(x<=a,b,bb,y,b<=y<=bb, bb<=y<=b)
+      return True
+    return False
+  if bb==b:
+    #check
+    inclpx=incl*x-(y-b)
+    if y<=b and (incl*a<=inclpx<=incl*aa or incl*aa<=inclpx<=incl*a):
+      return True
+    return False
+  ax,ay,bx,by=a,b,aa,bb
+  cx,cy,dx,dy=x,y,x+1,y+incl
+  px=((bx-ax)*(cx*dy-dx*cy)-(dx-cx)*(ax*by-bx*ay))/((bx-ax)*(dy-cy)-(by-ay)*(dx-cx))
+  if px<x:
+    return False
+  if a<=px<=aa or aa<=px<=a:
+    return True
+  return False
+def inter(es,x,y,incl):
+  ms=0
+  for (a,b),(aa,bb) in es:
+    if inl(x,y,incl,a,b) or inl(x,y,incl,aa,bb):
+      # print(inl(x,y,incl,a,b),inl(x,y,incl,aa,bb))
+      return False,None
+    # print(x,y,incl,a,b,aa,bb,m(x,y,incl,a,b,aa,bb),"###")
+    if m(x,y,incl,a,b,aa,bb):
+      ms+=1
+  return True,ms
+t=int(input())
+for i in range(1,t+1):
+  if i!=1:
+    input()
+  x,y,n=map(int,input().split())
+  es=[]
+  for j in range(n):
+    a,b,aa,bb=map(int,input().split())
+    es.append(((a,b),(aa,bb)))
+  incl=1
+  while True:
+    g,ms=inter(es,x,y,incl)
+    if g:
+      break
+    incl+=1
+  # print(ms)
+  res="jackpot" if (ms%2==1) else "too bad" 
+  print("Case #"+str(i)+":", res)

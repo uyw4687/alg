@@ -1,0 +1,104 @@
+import sys
+input=sys.stdin.readline
+def nc(c,n,a):
+  for j in range(a):
+    if c[a-1-j]!=n-1-j:
+      s=c[a-1-j]+1
+      for k in range(1+j):
+        c[a-1-j+k]=s+k
+      return False
+  return True
+def d(a,b):
+  (ax,ay),(bx,by)=a,b
+  return (bx-ax)**2+(by-ay)**2
+def rect(ps,c):
+  fps=[ps[j] for j in c]
+  ds=[(d(fps[0],fps[j]),j) for j in range(1,4)]
+  ds.sort(key=(lambda a:a[0]))
+  if ds[0][0]+ds[1][0]!=ds[2][0]:
+    return False,None
+  if d(fps[ds[0][1]],fps[ds[1][1]])!=ds[2][0]:
+    return False,None
+  if d(fps[ds[0][1]],fps[ds[2][1]])!=ds[1][0]:
+    return False,None
+  return True,(0,ds[0][1],ds[2][1],ds[1][1])
+def ccw(a,b,p):
+  (ax,ay),(bx,by),(px,py)=a,b,p
+  return (py-ay)*(bx-ax)-(px-ax)*(by-ay)
+def insl(a,b):
+  return (ccw(*a,b[0])*ccw(*a,b[1])<=0) and (ccw(*b,a[0])*ccw(*b,a[1])<=0)
+def findgood(tp,cp):
+  l=1
+  while True:
+    if (l*(cp[0]-tp[0][0]))!=(cp[1]-tp[0][1]):
+      if (l*(cp[0]-tp[1][0]))!=(cp[1]-tp[1][1]):
+        return l
+    l+=1
+def incr(ps,ca,cb,oneifrect):
+  for j in range(4-oneifrect):
+    cp=ps[ca[j]]
+    cnt=0
+    for k in range(3+oneifrect):
+      l=findgood((ps[cb[k]],ps[cb[k+1]]),cp)
+      if insl((ps[cb[k]],ps[cb[k+1]]),(cp,(cp[0]+10000,cp[1]+10000*l))):
+        cnt+=1
+    if cnt%2==0:
+      return False
+  return True
+def insc(ps,cin,ctp):
+  ctt=[*ctp,ctp[0]]
+  for j in range(4):
+    one=(ps[cin[j]],ps[cin[j+1]])
+    for k in range(3):
+      if insl(one,(ps[ctt[k]],ps[ctt[k+1]])):
+        # print("HERawE")
+        return True
+  if incr(ps,cin,ctt,0):
+    # print("HERE")
+    return True
+  if incr(ps,ctt,cin,1):
+    # print("aHERE")
+    return True
+  return False
+t=int(input())
+for i in range(1,t+1):
+  if i!=1:
+    input()
+  n=int(input())
+  ps=[]
+  for j in range(n):
+    x,y=map(int,input().split())
+    ps.append((x,y))
+  c=[0,1,2,3]
+  pos=False
+  while True:
+    rec,odr=rect(ps,c)
+    if rec:
+      #store rest in a list
+      nt=[]
+      for j in range(n):
+        if j not in c:
+          nt.append(j)
+      ct=[0,1,2]
+      cctuse=[nt[j] for j in ct]
+      while True:
+        cin=[c[j] for j in odr]
+        cin.append(cin[0])
+        if not insc(ps,cin,cctuse):
+          pos=True
+          break
+        if nc(ct,n-4,3):
+          break
+        cctuse=[nt[j] for j in ct]
+      if pos:
+        break
+    if nc(c,n,4):
+      break
+  if pos:
+    print("Case #"+str(i)+":","possible")
+    for oi in odr:
+      print(' '.join(map(str,ps[c[oi]])))
+    for ci in cctuse:
+      print(' '.join(map(str,ps[ci])))
+  else:
+    print("Case #"+str(i)+":","impossible")

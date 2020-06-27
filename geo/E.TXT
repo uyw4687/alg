@@ -1,0 +1,63 @@
+import sys
+input=sys.stdin.readline
+def ccw(a,b,p):
+  (ax,ay),(bx,by),(px,py)=a,b,p
+  return (py-ay)*(bx-ax)-(px-ax)*(by-ay)
+def cen(ps,n):
+  a=0
+  cx=cy=0
+  for ii in range(n):
+    (ax,ay),(bx,by)=ps[ii],ps[ii+1]
+    na=(ax*by-bx*ay)
+    a+=na
+    cx+=(ax+bx)*na
+    cy+=(ay+by)*na
+  return cx/a/3,cy/a/3
+def above(curr,cxy):
+  (ax,ay),(bx,by)=curr
+  (cx,cy)=cxy
+  if ax==bx:
+    return (ay<=cy<=by) or (by<=cy<=ay)
+  if ay==by:
+    return (ax<=cx<=bx) or (bx<=cx<=ax)
+  ic=(by-ay)/(bx-ax)
+  icc=-1/ic
+  d=-ic*ax+ay
+  dd=-icc*cx+cy
+  ix=(dd-d)/(ic-icc)
+  return (ax<=ix<=bx) or (bx<=ix<=ax)
+t=int(input())
+for i in range(1,t+1):
+  if i!=1:
+    input()
+  n=int(input())
+  ps=[]
+  for j in range(n):
+    x,y=map(float,input().split())
+    ps.append((x,y))
+  ps.append(ps[0])
+  ps.append(ps[1])
+  cnt=0
+  cxy=cen(ps,n)
+  for j in range(n):
+    impos=False
+    curr=(ps[j],ps[j+1])
+    sign=1 if ccw(*curr,ps[j+2])>0 else -1
+    for k in range(j+2,n):
+      cv=ccw(*curr,ps[k])
+      if cv*sign<=0:
+        impos=True
+        break
+    if impos:
+      continue
+    start=0 if j!=n-1 else 1
+    for k in range(start,j):
+      cv=ccw(*curr,ps[k])
+      if cv*sign<=0:
+        impos=True
+        break
+    if impos:
+      continue
+    if above(curr,cxy):
+      cnt+=1
+  print("Case #"+str(i)+":",cnt)

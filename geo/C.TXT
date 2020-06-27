@@ -1,0 +1,33 @@
+import sys
+input=sys.stdin.readline
+from math import sqrt,pi
+def d(p1,p2):
+  (p1x,p1y),(p2x,p2y)=p1,p2
+  return (p2x-p1x)**2+(p2y-p1y)**2
+t=int(input())
+for i in range(1,t+1):
+  if i!=1:
+    input()
+  n=int(input())
+  ps=[]
+  x,y=map(float,input().split())
+  ps.append((x,y))
+  fp=ps[0]
+  minhd=minad=2000**2
+  for j in range(n-1):
+    x,y=map(float,input().split())
+    np=(x,y)
+    dfp=d(fp,np)
+    if dfp<minhd:
+      minhd=dfp
+    for k in range(1,len(ps)):
+      dpsk=d(ps[k],np)
+      if dpsk<minad:
+        minad=dpsk
+    ps.append(np)
+  md=minhd if (minad==2000 or minhd*4<=minad) else minad/4
+  a=minhd
+  b=md*(n-1)+(sqrt(minhd)-sqrt(md))**2
+  res=a if a>=b else b
+  res*=pi
+  print("Case #"+str(i)+":",res)
