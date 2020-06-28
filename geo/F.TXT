@@ -1,0 +1,102 @@
+import sys
+input=sys.stdin.readline
+from heapq import heappush,heappop
+from math import sqrt
+def ccw(a,b,p):
+  (ax,ay),(bx,by),(px,py)=a,b,p
+  return (py-by)*(bx-ax)-(px-bx)*(by-ay)
+#change
+def insl(l,lb):
+  return (ccw(*l,lb[0])*ccw(*l,lb[1])<=0) and (ccw(*lb,l[0])*ccw(*lb,l[1])<0)
+def irl(ibs,l):
+  x,y,w,h=ibs
+  vls=(((x,y),(x+w,y+h)),((x,y+h),(x+w,y)))
+  for el in vls:
+    if insl(l,el):
+      return True
+  return False
+def far(ibs,l):
+  x,y,w,h=ibs
+  la,lb=l
+  if ((la[0]<=x) and (lb[0]<=x)) or ((la[0]>=x+w) and (lb[0]>=x+w)) or ((la[1]<=y) and (lb[1]<=y)) or ((la[1]>=y+h) and (lb[1]>=y+h)):
+    return True
+  return False
+def irsl(l,bss):
+  for ibs in bss:
+    if far(ibs,l):
+      continue
+    if irl(ibs,l):
+      return True
+  return False
+def d(a,b):
+  (ax,ay),(bx,by)=a,b
+  return sqrt((bx-ax)**2+(by-ay)**2)
+def gres(ph):
+  res=''
+  for (s,e) in ph:
+    res=' '+'('+str(s)+','+str(e)+')'+res
+  return res
+def good(l,bs,sindy):
+  maxy=max(l[0][1],l[1][1])
+  if irsl(l,bs[:sindy[maxy+1]]):
+    return False
+  return True
+t=int(input())
+for i in range(1,t+1):
+  if i!=1:
+    input()
+  w,h,n=map(int,input().split())
+  bs=[]
+  ps=[]
+  sindy=[0]*(h+2)
+  for j in range(n):
+    x,y,w,hh=map(int,input().split())
+    #O(5000*100)
+    ps+=[(x,y),(x,y+hh),(x+w,y),(x+w,y+hh)]
+    bs.append((x,y,w,hh))
+  bs.sort(key=lambda a:a[1])
+  sind=0
+  for j in range(n):
+    for k in range(sind,bs[j][1]):
+      sindy[k]=j
+      sind=bs[j][1]
+  for j in range(bs[n-1][1],h+2):
+    sindy[j]=n
+  sx,sy=map(int,input().split())
+  ex,ey=map(int,input().split())
+  ps+=[(sx,sy),(ex,ey)]
+  nps=len(ps)
+  es=[[]for j in range(nps)]
+  #O((4n)^2*n)
+  #O(160000*n)
+  for j in range(nps-1):
+    for k in range(j+1,nps):
+      if good((ps[j],ps[k]),bs,sindy):
+        dl=d(ps[j],ps[k])
+        es[j].append((dl,k))
+        es[k].append((dl,j))
+  #3*5005*5005=7.5150075*(10**7)
+  dd=[10**9]*nps
+  dd[nps-2]=0
+  mhn=[(0,nps-2)]
+  v=[False]*nps
+  pv=[-1]*nps
+  while not v[nps-1]:
+    cd,cv=heappop(mhn)
+    if v[cv]:
+      continue
+    v[cv]=True
+    for ad,nv in es[cv]:
+      if cd+ad<dd[nv]:
+        dd[nv]=cd+ad
+        heappush(mhn,(cd+ad,nv))
+        pv[nv]=cv
+  cv=nps-1
+  ph=[ps[cv]]
+  while True:
+    cv=pv[cv]
+    ph.append(ps[cv])
+    if cv==nps-2:
+      break
+  res=gres(ph)
+  print("Case #"+str(i)+":"+res)
