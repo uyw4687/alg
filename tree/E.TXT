@@ -1,0 +1,65 @@
+import sys
+input=sys.stdin.readline
+def ins(st,s):
+  cm=st
+  ls=len(s)
+  for k in range(ls-1):
+    nm=cm[0].get(s[k])
+    if nm!=None:
+      if nm[1]:
+        return
+    else:
+      cm[0][s[k]]=[{},False]
+      nm=cm[0][s[k]]
+    cm=nm
+  cm[0][s[ls-1]]=[{},True,(ls+1)%2]
+def sv(st,c):
+  re=0
+  if c:
+    ma=0
+    for _,nls in st.items():
+      if nls[1]:
+        re=nls[2]
+      else:
+        re=sv(nls[0],False)
+      if re>ma:
+        ma=re
+    return ma
+  else:
+    mi=1
+    for _,nls in st.items():
+      if nls[1]:
+        re=nls[2]
+      else:
+        re=sv(nls[0],True)
+      if re<mi:
+        mi=re
+    return mi
+t=int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  st=[{},False]
+  n,w=map(int,input().split())
+  n=n%2
+  ss=[]
+  for j in range(w):
+    ns=input().rstrip()
+    ss.append(ns)
+    ins(st,ns)
+  resx=sv(st[0],True)
+  resn=sv(st[0],False)
+  restr="victory\nvictory\ndefeat\ndefeat"
+  if resx==resn==1:
+    if n==1:
+      restr="victory\nvictory\ndefeat\ndefeat"
+    else:
+      restr="victory\ndefeat\ndefeat\nvictory"
+  elif resx==resn==0:
+    if n==1:
+      restr="defeat\ndefeat\nvictory\nvictory"
+    else:
+      restr="victory\ndefeat\ndefeat\nvictory"
+  elif resx==0 and resn==1:
+    restr="defeat\ndefeat\nvictory\nvictory"
+  print("Case #"+str(i+1)+":\n"+restr)

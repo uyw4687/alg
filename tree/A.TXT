@@ -1,0 +1,40 @@
+import sys
+input=sys.stdin.readline
+t=int(input())
+ordA=ord('A')
+def ins(ns,s):
+  cs=ns[ord(s[0])-ordA]
+  for j in range(1,len(s)):
+    nv=s[j]
+    nm=cs.get(nv)
+    if nm==None:
+      cs[nv]=nm={}
+    cs=nm
+  cs[None]={}
+def trav(ns):
+  lenns=len(ns)
+  if lenns==0:
+    return
+  elif lenns==1:
+    if ns.get(None)!=None:
+      return
+    trav(next(iter(ns.values())))
+  else:
+    global cnt
+    for nv,nm in ns.items():
+      if nv==None:
+        cnt+=1
+      else:
+        trav(nm)
+for i in range(1,t+1):
+  if i!=1:
+    input()
+  names=[{}for j in range(ord('Z')-ord('A')+1)]
+  n=int(input())
+  for j in range(n):
+    s=input().rstrip()
+    ins(names,s)
+  cnt=0
+  for j in range(len(names)):
+    trav(names[j])    
+  print("Case #"+str(i)+":",cnt)
