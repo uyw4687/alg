@@ -1,0 +1,61 @@
+import sys
+input=sys.stdin.readline
+def ywithx(ax,ay,bx,by,x):
+  a1=(by-ay)
+  b1=-(bx-ax)
+  c1=a1*ax+b1*ay
+  return -(c1-a1*x)/(bx-ax)
+def trav(edges,x,y,grds,start,lenedges,done):
+  if done[x][y]:
+    return
+  done[x][y]=True
+  nx,ny,newstart,ne=x,0,start,None
+  opt=True
+  for j in range(start,lenedges):
+    ax,ay,bx,by=edges[j]
+    if opt:
+      if by>y:
+        newstart=j+1
+        continue
+    opt=False
+    if ny>ay:
+      break
+    if ax<=nx<=bx or bx<=nx<=ax:
+      iy=ywithx(ax,ay,bx,by,x)
+      if iy>=y:
+        continue
+      if iy>ny:
+        ny,ne=iy,edges[j]
+  if ny!=0:
+    ax,ay,bx,by=ne
+    if ay==by:
+      trav(edges,ax,ay,grds,newstart,lenedges,done)
+      trav(edges,bx,by,grds,newstart,lenedges,done)
+    else:
+      trav(edges,bx,by,grds,newstart,lenedges,done)
+      if x==ax:
+        trav(edges,ax,ay,grds,newstart,lenedges,done)
+  else:
+    grds.add(x)
+t=int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n,x,y=map(int,input().split())
+  edges=[]
+  for j in range(n):
+    ax,ay,bx,by=map(int,input().split())
+    if ax==bx:
+      continue
+    if ay<by:
+      ax,ay,bx,by=bx,by,ax,ay
+    if by>y:
+      continue
+    edges.append((ax,ay,bx,by))
+  edges.sort(key=lambda a:a[1],reverse=True)
+  grds=set()
+  done=[[False]*101 for j in range(101)]
+  trav(edges,x,y,grds,0,len(edges),done)
+  grds=list(grds)
+  grds.sort()
+  print("Case #"+str(i+1)+":",' '.join(list(map(str,grds))))

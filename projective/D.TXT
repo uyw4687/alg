@@ -1,0 +1,44 @@
+import sys
+input=sys.stdin.readline
+def inv(mat):
+  res=[[0]*3 for j in range(3)]
+  mid1=(mat[1][1]*mat[2][2]-mat[1][2]*mat[2][1])
+  mid2=(mat[1][0]*mat[2][2]-mat[1][2]*mat[2][0])
+  mid3=(mat[1][0]*mat[2][1]-mat[1][1]*mat[2][0])
+  det=mat[0][0]*mid1
+  det-=mat[0][1]*mid2
+  det+=mat[0][2]*mid3
+
+  res[0][0]=mid1/det
+  res[0][1]=(mat[0][2]*mat[2][1]-mat[0][1]*mat[2][2])/det
+  res[0][2]=(mat[0][1]*mat[1][2]-mat[0][2]*mat[1][1])/det
+
+  res[1][0]=-mid2/det
+  res[1][1]=(mat[0][0]*mat[2][2]-mat[0][2]*mat[2][0])/det
+  res[1][2]=(mat[1][0]*mat[0][2]-mat[0][0]*mat[1][2])/det
+
+  res[2][0]=mid3/det
+  res[2][1]=(mat[2][0]*mat[0][1]-mat[0][0]*mat[2][1])/det
+  res[2][2]=(mat[0][0]*mat[1][1]-mat[1][0]*mat[0][1])/det
+
+  return res
+def mul(mat,vec):
+  res=[]
+  for ii in range(3):
+    mid=0
+    for jj in range(3):
+      mid+=mat[ii][jj]*vec[jj]
+    res.append(mid)
+  return res
+t=int(input())
+for i in range(t):
+  ax,ay,bx,by,cx,cy,dx,dy,ex,ey,fx,fy=map(float,input().split())
+  poly=[[bx,dx,-ax],[by,dy,-ay],[1,1,-1]]
+  a,b,c=mul(inv(poly),[cx,cy,1])
+  mat=[[a*bx-c*ax,b*dx-c*ax,c*ax],[a*by-c*ay,b*dy-c*ay,c*ay],[a-c,b-c,c]]
+  invmat=inv(mat)
+  rese=mul(invmat,[ex,ey,1])
+  rese[1]/=rese[2]
+  resf=mul(invmat,[fx,fy,1])
+  resf[1]/=resf[2]
+  print("Case #"+str(i+1)+":",rese[1]/resf[1])

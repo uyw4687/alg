@@ -1,0 +1,43 @@
+import sys
+input=sys.stdin.readline
+from math import cos,sin,radians
+def go(px,py,angle):
+  newpx=px+cos(radians(angle))
+  newpy=py+sin(radians(angle))
+  print(newpx,newpy)
+  return (newpx,newpy)
+def do(px,py,angle,s,k,d,a,changes):
+  if k==d:
+    newpx,newpy=px,py
+    newangle=angle
+    for ch in s:
+      if ch=='-':
+        newangle-=a
+      elif ch=='+':
+        newangle+=a
+      else:
+        newpx,newpy=go(newpx,newpy,newangle)
+    return newpx,newpy,newangle
+  newpx,newpy=px,py
+  newangle=angle
+  for ch in s:
+    if ch=='-':
+      newangle-=a
+    elif ch=='+':
+      newangle+=a
+    else:
+      newpx,newpy,newangle=do(newpx,newpy,newangle,changes[ch],k+1,d,a,changes)
+  return newpx,newpy,newangle
+t=int(input())
+for i in range(t):
+  if i!=0:
+    input()
+  n,d,a,s=input().rstrip().split()
+  n,d,a=map(int,(n,d,a))
+  changes={}
+  for j in range(n):
+    gfr,gto=input().rstrip().split('=>')
+    changes[gfr]=gto
+  print("Case #"+str(i+1)+":")
+  print(0.0,0.0)
+  do(0,0,0,s,0,d,a,changes)

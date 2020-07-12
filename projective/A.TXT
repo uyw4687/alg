@@ -1,0 +1,41 @@
+import sys
+input=sys.stdin.readline
+def twolines(x11,y11,x12,y12,x21,y21,x22,y22):
+  a1=(y12-y11)
+  b1=-(x12-x11)
+  c1=a1*x11+b1*y11
+  a2=(y22-y21)
+  b2=-(x22-x21)
+  c2=a2*x21+b2*y21
+  det=a2*b1-a1*b2
+  x=(c2*b1-c1*b2)/det
+  y=(c1*a2-c2*a1)/det
+  return (x,y)
+def findstart(x1,y1,x2,y2,x3,y3):
+  a1=(y2-y1)
+  b1=-(x2-x1)
+  c1=a1*x1+b1*y1
+  a2=(x2-x1)
+  b2=(y2-y1)
+  c2=a2*x3+b2*y3
+  det=a2*b1-a1*b2
+  x=(c2*b1-c1*b2)/det
+  y=(c1*a2-c2*a1)/det
+  return (x,y)
+def gut(x3,y3,xs,ys,x,y):
+  dx1,dy1,dx2,dy2=(xs-x3),(ys-y3),(x-xs),(y-ys)
+  return ((dx2*dx1>=0) and (dy1*dy2>=0))
+t=int(input())
+for i in range(t):
+  x11,y11,x12,y12,x13,y13,x21,y21,x22,y22,x23,y23=map(int,input().split())
+  print("Case #"+str(i+1)+":",end=" ")
+  if (y12-y11)*(x22-x21)==(y22-y21)*(x12-x11):
+    print("strange")
+    continue
+  xs1,ys1=findstart(x11,y11,x12,y12,x13,y13)
+  xs2,ys2=findstart(x21,y21,x22,y22,x23,y23)
+  point=twolines(xs1,ys1,x13,y13,xs2,ys2,x23,y23)
+  if not gut(x13,y13,xs1,ys1,*point) or not gut(x23,y23,xs2,ys2,*point):
+    print("strange")
+    continue
+  print(' '.join(list(map(str,point))))

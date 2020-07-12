@@ -1,0 +1,34 @@
+import sys
+input = sys.stdin.readline
+def x(a1, a2, a3, b1, b2, b3):
+    return [(a2 * b3 - a3 * b2), (a3 * b1 - a1 * b3), (a1 * b2 - a2 * b1)]
+t = int(input())
+for i in range(t):
+    if i!=0:
+        input()
+    ax, ay = map(float, input().split())
+    bx, by = map(float, input().split())
+    cx, cy = map(float, input().split())
+    print("Case #" + str(i + 1) + ":")
+    threepoints = [(ax, ay, 1), (bx, by, 1), (cx, cy, 1)]
+    print(*([sum(a) / 3 for a in zip(*threepoints)][:2]))
+    twolines = [x(ax, ay, 1, bx, by, 1), x(bx, by, 1, cx, cy, 1)]
+    infpoints = [x(*line, 0, 0, 1) for line in twolines]
+    ortdirs = []
+    for a, b, _ in infpoints:
+        ortdirs.append((b, -a, 0))
+    correspoints = [
+        threepoints[2], threepoints[0],
+        [sum(x) / 2 for x in zip(*threepoints[:2])],
+        [sum(x) / 2 for x in zip(*threepoints[1:3])]
+    ]
+    orthlines = [x(*a, *b) for a, b in zip(ortdirs, correspoints[:2])]
+    circumlines = [x(*a, *b) for a, b in zip(ortdirs, correspoints[2:])]
+    hey=x(*orthlines[0], *orthlines[1])
+    hey2=x(*circumlines[0], *circumlines[1])
+    hey[0]/=hey[2]
+    hey[1]/=hey[2]
+    hey2[0]/=hey2[2]
+    hey2[1]/=hey2[2]
+    print(*(hey[:2]))
+    print(*(hey2[:2]))
